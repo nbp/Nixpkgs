@@ -1,61 +1,37 @@
-{ stdenv
-, fetchurl
-, ffmpeg
-, cairo
-, pango
-, glib
-, libXrender
-, libXScrnSaver
-, gtk
-, nspr
-, nss
-, fontconfig
-, freetype
-, alsaLib
-, libX11
-, GConf
-, libXext
-, libXt
-, atk
-, makeWrapper
-, unzip
-, expat
-, zlib
-, libjpeg
-, bzip2
-, libpng
-, dbus
-, dbus_glib
-, patchelf
-, cups
-, libgcrypt
-}:
+{ GConf, alsaLib, atk, bzip2, cairo, cups, dbus, dbus_glib, expat,
+  fetchurl, ffmpeg, fontconfig, freetype, glib, gtk, libX11,
+  libXScrnSaver, libXdamage, libXext, libXrender, libXt, libXtst,
+  libgcrypt, libjpeg, libpng, makeWrapper, nspr, nss, pango, patchelf,
+  stdenv, unzip, zlib }:
 
 assert stdenv.system == "i686-linux" || stdenv.system == "x86_64-linux" ;
 
 stdenv.mkDerivation rec {
   name = "chrome-${version}";
-  version = "51653";
-  src = 
-    if stdenv.system == "x86_64-linux" then 
+  version = "70357";
+  src =
+    if stdenv.system == "x86_64-linux" then
       fetchurl {
-        url = "http://build.chromium.org/buildbot/snapshots/chromium-rel-linux-64/${version}/chrome-linux.zip";
-        sha256 = "1d8q4ac8s3b1bncli537phzxshfr50j69y49409g5p64v7iya9kw";
-      } 
-    else if stdenv.system == "i686-linux" then 
+        url = http://build.chromium.org/f/chromium/continuous/linux64/2011-01-02/70375/chrome-linux.zip;
+        sha256 = "0zz9pl1ksiwk5kcsa5isviacg8awzs2gmirg8n36qni07dj5wiq8";
+      }
+    else if stdenv.system == "i686-linux" then
       fetchurl {
-        url = "http://build.chromium.org/buildbot/snapshots/chromium-rel-linux/${version}/chrome-linux.zip";
-        sha256 = "1kdhwkl7xxssmkrkkgrdwrwvbah97va7rxbwrfhlcnjgw60ppf9v";
-      } 
-    else null;
+        url = http://build.chromium.org/f/chromium/continuous/linux/2011-01-02/70375/chrome-linux.zip;
+        sha256 = "1i7sb6wgf19zr97r2s5n0p4543i736n8c2hnhk483hjzikg2j55i";
+      }
+    else throw "Chromium is not supported on this platform.";
 
-  phases="unpackPhase installPhase";
+  phases = "unpackPhase installPhase";
 
   buildInputs = [makeWrapper unzip];
 
-  libPath = 
+  libPath =
     stdenv.lib.makeLibraryPath
-       [ stdenv.glibc stdenv.gcc.gcc ffmpeg cairo pango glib libXrender gtk nspr nss fontconfig freetype alsaLib libX11 GConf libXext atk libXt expat zlib libjpeg bzip2 libpng libXScrnSaver dbus dbus_glib cups libgcrypt] ;
+       [ GConf alsaLib atk bzip2 cairo cups dbus dbus_glib expat
+         ffmpeg fontconfig freetype glib gtk libX11 libXScrnSaver
+         libXdamage libXext libXrender libXt libXtst libgcrypt libjpeg
+         libpng nspr nss pango stdenv.gcc.gcc zlib stdenv.gcc.libc ];
 
   installPhase = ''
     ensureDir $out/bin
@@ -64,8 +40,7 @@ stdenv.mkDerivation rec {
 
     cp -R * $out/chrome
     ln -s $out/chrome/chrome $out/bin/chrome
-    ${patchelf}/bin/patchelf --interpreter "$(cat $NIX_GCC/nix-support/dynamic-linker)" --set-rpath ${libPath}:$out/lib:${stdenv.gcc.gcc}/lib64:${stdenv.gcc.gcc}/lib $out/chrome/chrome 
-        
+    ${patchelf}/bin/patchelf --interpreter "$(cat $NIX_GCC/nix-support/dynamic-linker)" --set-rpath ${libPath}:$out/lib:${stdenv.gcc.gcc}/lib64:${stdenv.gcc.gcc}/lib $out/chrome/chrome
 
     ln -s ${nss}/lib/libsmime3.so $out/lib/libsmime3.so.1d
     ln -s ${nss}/lib/libnssutil3.so $out/lib/libnssutil3.so.1d
@@ -77,6 +52,6 @@ stdenv.mkDerivation rec {
   '';
 
   meta = {
-    description = "";
+    description = "Chromium, an open source web browser";
   };
 }

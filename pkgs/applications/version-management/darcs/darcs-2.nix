@@ -1,13 +1,13 @@
-{cabal, html, mtl, parsec, regexCompat, curl, haskeline, hashedStorage, zlib} :
+{cabal, curl, html, mtl, parsec, regexCompat, haskeline, hashedStorage, zlib, tar, text} :
 
 cabal.mkDerivation (self : {
   pname = "darcs";
   name = self.fname;
-  version = "2.4.1";
-  sha256 = "6ac0e84d2eca160e6e33755679dfb185d9b5f9f5bdc43f99db326210aabbc4aa";
+  version = "2.5";
+  sha256 = "0i99z3wsfc1hhr0a0ax7254gj3i69yg8cb9lhp55wl6lfqvpzcnh";
 
-  extraBuildInputs = [
-    html parsec regexCompat curl haskeline hashedStorage zlib
+  propagatedBuildInputs = [
+    curl html parsec regexCompat haskeline hashedStorage zlib tar text
   ];
 
   meta = {

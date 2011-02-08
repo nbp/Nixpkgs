@@ -10,14 +10,16 @@ STDOUT->autoflush(1);
 
 my $out = $ENV{"out"};
 
-
 my @pathsToLink = split ' ', $ENV{"pathsToLink"};
 
 sub isInPathsToLink {
     my $path = shift;
     $path = "/" if $path eq "";
     foreach my $elem (@pathsToLink) {
-        return 1 if substr($path, 0, length($elem)) eq $elem;
+        return 1 if
+            $elem eq "/" || 
+            (substr($path, 0, length($elem)) eq $elem
+             && (($path eq $elem) || (substr($path, length($elem), 1) eq "/")));
     }
     return 0;
 }
@@ -108,7 +110,7 @@ sub addPkg($;$) {
 my @args = split ' ', $ENV{"paths"};
 
 foreach my $pkgDir (@args) {
-    addPkg($pkgDir, $ENV{"ignoreCollisions"} eq "1");
+    addPkg($pkgDir, $ENV{"ignoreCollisions"} eq "1") if -e $pkgDir;
 }
 
 
@@ -150,7 +152,3 @@ my $manifest = $ENV{"manifest"};
 if ($manifest) {
     symlink($manifest, "$out/manifest") or die "cannot create manifest";
 }
-
-
-system("eval \"\$postBuild\"") == 0
-    or die "post-build hook failed";

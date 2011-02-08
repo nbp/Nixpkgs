@@ -1,11 +1,10 @@
-{ stdenv, fetchurl, userModeLinux ? false, systemtap ? false
-, extraConfig ? "", ... } @ args:
+{ stdenv, fetchurl, extraConfig ? "", ... } @ args:
 
 let
-  configWithPlatform = kernelPlatform :
+  configWithPlatform = kernelPlatform:
     ''
       # Don't include any debug features.
-      DEBUG_KERNEL ${if systemtap then "y" else "n"}
+      DEBUG_KERNEL n
 
       # Support drivers that need external firmware.
       STANDALONE n
@@ -25,6 +24,7 @@ let
 
       # Disable some expensive (?) features.
       FTRACE n
+      KPROBES n
       NUMA? n
       PM_TRACE_RTC n
 
@@ -190,14 +190,6 @@ let
       X86_CHECK_BIOS_CORRUPTION y
       X86_MCE y
 
-      ${if systemtap then ''
-        # SystemTap support.
-        KPROBES y    # kernel probes (needs `utrace' for process probes)
-        DEBUG_INFO y
-        RELAY y
-        DEBUG_FS y
-      '' else ""}
-
       ${if kernelPlatform ? kernelExtraConfig then kernelPlatform.kernelExtraConfig else ""}
       ${extraConfig}
     '';
@@ -206,11 +198,11 @@ in
 import ./generic.nix (
 
   rec {
-    version = "2.6.32.16";
+    version = "2.6.32.28";
   
     src = fetchurl {
-      url = "mirror://kernel/linux/kernel/v2.6/linux-${version}.tar.bz2";
-      sha256 = "1ndvqvfaxachsklzzr5db1bzvfhnzz8diddrm1zlv7171fzmn13j";
+      url = "mirror://kernel/linux/kernel/v2.6/longterm/v2.6.32/linux-${version}.tar.bz2";
+      sha256 = "0dzaj5k0sfzkr0klv52plfs66rf0hrbi2a9fs61smcwhc6yxnjdh";
     };
 
     config = configWithPlatform stdenv.platform;

@@ -1,23 +1,22 @@
-args:
+{ stdenv, fetchurl, gawk }:
 
-if args ? startFPC && args.startFPC != null then
-
-with args;
+let startFPC = import ./binary.nix { inherit stdenv fetchurl; }; in
 
 stdenv.mkDerivation rec {
-  version = "2.4.0";
+  version = "2.4.2";
   name = "fpc-${version}";
 
   src = fetchurl {
     url = "http://downloads.sourceforge.net/sourceforge/freepascal/fpcbuild-${version}.tar.gz";
-    sha256 = "1m2g2bafjixbwl5b9lna5h7r56y1rcayfnbp8kyjfd1c1ymbxaxk";
+    sha256 = "291f18a58259a2fc5f36593052f7a950f4872fbbbfb6a19a4e0188b4d5e5efbe";
   };
 
-  buildInputs = [startFPC gawk];
+  buildInputs = [ startFPC gawk ];
 
   preConfigure =
-    if system == "i686-linux" || system == "x86_64-linux" then ''
+    if stdenv.system == "i686-linux" || stdenv.system == "x86_64-linux" then ''
       sed -e "s@'/lib/ld-linux[^']*'@'''@" -i fpcsrc/compiler/systems/t_linux.pas
+      sed -e "s@'/lib64/ld-linux[^']*'@'''@" -i fpcsrc/compiler/systems/t_linux.pas
     '' else "";
 
   makeFlags = "NOGDB=1";
@@ -38,5 +37,3 @@ stdenv.mkDerivation rec {
     platforms = stdenv.lib.platforms.linux;
   };
 }
-
-else (import ./default.nix (args // {startFPC = (import ./binary.nix args);}))

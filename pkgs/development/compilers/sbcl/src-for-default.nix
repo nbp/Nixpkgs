@@ -1,9 +1,9 @@
 rec {
-   version="1.0.36";
-   name="sbcl-1.0.36";
-   hash="1idshas1zyqdchwv2mhs4x8vzspyr1f1drwinlhynvx35db7in5v";
-   url="http://downloads.sourceforge.net/sbcl/files/sbcl/1.0.36/sbcl-1.0.36-source.tar.bz2";
-   advertisedUrl="http://downloads.sourceforge.net/sbcl/files/sbcl/1.0.36/sbcl-1.0.36-source.tar.bz2";
+   version="1.0.45";
+   name="sbcl-1.0.45";
+   hash="1asl4qy2mizj239cmgnw2dza03h7j3ysrkdavc5gnv9y4gn9miyi";
+   url="http://downloads.sourceforge.net/project/sbcl/sbcl/1.0.45/sbcl-1.0.45-source.tar.bz2";
+   advertisedUrl="http://downloads.sourceforge.net/project/sbcl/sbcl/1.0.45/sbcl-1.0.45-source.tar.bz2";
   
   
 }

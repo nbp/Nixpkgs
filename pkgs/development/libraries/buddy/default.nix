@@ -17,5 +17,8 @@ stdenv.mkDerivation rec {
     homepage = "http://sourceforge.net/projects/buddy/";
     description = "binary decision diagram package";
     license = "as-is";
+
+    platforms = stdenv.lib.platforms.allBut "i686-cygwin";
+    maintainers = [ stdenv.lib.maintainers.simons ];
   };
 }

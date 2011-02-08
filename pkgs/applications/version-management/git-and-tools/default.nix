@@ -4,12 +4,12 @@
 args: with args; with pkgs;
 let
   inherit (pkgs) stdenv fetchurl subversion;
-  config = getPkgConfig "git";
+  config = param: getConfig [ "git" param ];
 in
 rec {
 
   git = lib.makeOverridable (import ./git) {
-    inherit fetchurl stdenv curl openssl zlib expat perl python gettext
+    inherit fetchurl stdenv curl openssl zlib expat perl python gettext gnugrep
       asciidoc texinfo xmlto docbook2x
       docbook_xsl docbook_xml_dtd_45 libxslt
       cpio tcl tk makeWrapper subversion;
@@ -60,14 +60,14 @@ rec {
   };
 
   topGit = stdenv.mkDerivation rec {
-    name = "topgit-0.8";
+    name = "topgit-0.8-32-g8b0f1f9";
 
-    src = fetchgit {
-      url = "http://repo.or.cz/r/topgit.git";
-      rev = name;
-      sha256 = "14g233hk70xs51h4jqyivjfqnwmjjpc95fjb7wdny64i9ddz03aj";
+    src = fetchurl {
+      url = "http://repo.or.cz/w/topgit.git/snapshot/${name}.zip";
+      sha256 = "0v3binh7wc2di57w6rdnlww30ryszzsklfdmm61sl1ildyl1klk4";
     };
 
+    buildInputs = [unzip];
     configurePhase = "export prefix=$out";
 
     postInstall = ''
@@ -82,18 +82,18 @@ rec {
 
     meta = {
       description = "TopGit aims to make handling of large amount of interdependent topic branches easier";
-      maintainers = [ lib.maintainers.marcweber lib.maintainers.ludo ];
-      homepage = http://repo.or.cz/w/topgit.git; # maybe there is also another one, I haven't checked
+      maintainers = [ lib.maintainers.marcweber lib.maintainers.ludo lib.maintainers.simons ];
+      homepage = http://repo.or.cz/w/topgit.git;
       license = "GPLv2";
-      platforms = stdenv.lib.platforms.gnu;  # arbitrary choice
+      platforms = stdenv.lib.platforms.unix;
     };
   };
 
   tig = stdenv.mkDerivation {
-    name = "tig-0.14.1";
+    name = "tig-0.16";
     src = fetchurl {
-      url = "http://jonas.nitro.dk/tig/releases/tig-0.14.1.tar.gz";
-      sha256 = "1a8mi1pv36v67n31vs95gcibkifnqq5s1x69lz1cz0218yv9s73r";
+      url = "http://jonas.nitro.dk/tig/releases/tig-0.16.tar.gz";
+      sha256 = "167kak44n66wqjj6jrv8q4ijjac07cw22rlpqjqz3brlhx4cb3ix";
     };
     buildInputs = [ncurses asciidoc xmlto docbook_xsl];
     installPhase = ''

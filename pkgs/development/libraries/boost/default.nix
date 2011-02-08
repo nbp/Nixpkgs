@@ -33,7 +33,7 @@ let
 in
 
 stdenv.mkDerivation {
-  name = "boost-1.43.0";
+  name = "boost-1.44.0";
 
   meta = {
     homepage = "http://boost.org/";
@@ -44,16 +44,37 @@ stdenv.mkDerivation {
   };
 
   src = fetchurl {
-    url = "mirror://sourceforge/boost/boost_1_43_0.tar.bz2";
-    sha256 = "0831h19ph65r2rai6ipk5c2bx04af8q423mzr89fh454385i0krl";
+    url = "mirror://sourceforge/boost/boost_1_44_0.tar.bz2";
+    sha256 = "1nvq36mvzr1fr85q0jh86rk3bk65s1y55jgqgzfg3lcpkl12ihs5";
   };
+
+  enableParallelBuilding = true;
 
   buildInputs = [icu expat zlib bzip2 python];
 
   configureScript = "./bootstrap.sh";
   configureFlags = "--with-icu=${icu} --with-python=${python}/bin/python";
 
-  buildPhase = "./bjam -sEXPAT_INCLUDE=${expat}/include -sEXPAT_LIBPATH=${expat}/lib --layout=${finalLayout} variant=${variant} threading=${threading} link=${link} ${cflags} install";
+  buildPhase = "./bjam -j$NIX_BUILD_CORES -sEXPAT_INCLUDE=${expat}/include -sEXPAT_LIBPATH=${expat}/lib --layout=${finalLayout} variant=${variant} threading=${threading} link=${link} ${cflags} install";
 
   installPhase = ":";
+
+  crossAttrs = rec {
+    buildInputs = [ expat.hostDrv zlib.hostDrv bzip2.hostDrv ];
+    # all buildInputs set previously fell into propagatedBuildInputs, as usual, so we have to
+    # override them.
+    propagatedBuildInputs = buildInputs;
+    # We want to substitute the contents of configureFlags, removing thus the
+    # usual --build and --host added on cross building.
+    preConfigure = ''
+      export configureFlags="--prefix=$out --without-icu"
+    '';
+    buildPhase = ''
+      set -x
+      cat << EOF > user-config.jam
+      using gcc : cross : $crossConfig-g++ ;
+      EOF
+      ./bjam -j$NIX_BUILD_CORES -sEXPAT_INCLUDE=${expat.hostDrv}/include -sEXPAT_LIBPATH=${expat.hostDrv}/lib --layout=${finalLayout} --user-config=user-config.jam toolset=gcc-cross variant=${variant} threading=${threading} link=${link} ${cflags} --without-python install
+    '';
+  };
 }

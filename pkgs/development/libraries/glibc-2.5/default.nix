@@ -12,7 +12,8 @@ stdenv.mkDerivation {
     md5 = "1fb29764a6a650a4d5b409dda227ac9f";
   };
 
-  patches = [ ./glibc-pwd.patch ./glibc-getcwd-param-MAX.patch ./glibc-inline.patch ./x86-fnstsw.patch ];
+  patches = [ ./glibc-pwd.patch ./glibc-getcwd-param-MAX.patch ./glibc-inline.patch
+              ./x86-fnstsw.patch ./binutils-ld.patch ./make-3-82-fix.patch ];
 
   inherit kernelHeaders installLocales;
 
@@ -29,6 +30,8 @@ stdenv.mkDerivation {
   # preprocessor symbol `__i686' will be defined to `1'.  This causes
   # the symbol __i686.get_pc_thunk.dx to be mangled.
   NIX_CFLAGS_COMPILE = "-U__i686";
+
+  enableParallelBuilding = true;
 
   meta = {
     homepage = http://www.gnu.org/software/libc/;

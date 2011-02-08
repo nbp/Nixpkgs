@@ -21,7 +21,6 @@ with (import ./release-lib.nix);
   apacheHttpd = linux;
   aspell = all;
   at = linux;
-  aterm242fixes = all;
   aterm25 = all;
   aterm28 = all;
   audacious = linux;
@@ -48,13 +47,12 @@ with (import ./release-lib.nix);
   bvi = all;
   bzip2 = all;
   cabextract = all;
-  castleCombat = linux;
+  castle_combat = linux;
   cdrkit = linux;
   chatzilla = linux;
   cksfv = all;
   classpath = linux;
   cmake = all;
-  #compiz = linux;
   consolekit = linux;
   coreutils = all;
   cpio = all;
@@ -137,7 +135,6 @@ with (import ./release-lib.nix);
   grub2 = linux;
   gsl = linux;
   guile = linux;  # tests fail on Cygwin
-  guileLib = linux;
   gv = linux;
   gw6c = linux;
   gzip = all;
@@ -159,8 +156,6 @@ with (import ./release-lib.nix);
   inetutils = linux;
   inkscape = linux;
   iputils = linux;
-  iproute = linux;
-  iptables = linux;
   irssi = linux;
   jfsutils = linux;
   jfsrec = linux;
@@ -168,7 +163,7 @@ with (import ./release-lib.nix);
   jwhois = linux;
   kbd = linux;
   keen4 = ["i686-linux"];
-  klibc = linux;
+#  klibc = linux;
   ktorrent = linux;
   kvm = linux;
   qemu = linux;
@@ -204,7 +199,6 @@ with (import ./release-lib.nix);
   mod_python = linux;
   module_init_tools = linux;
   mono = linux;
-  monotone = linux;
   mpg321 = linux;
   mutt = linux;
   mysql = linux;
@@ -228,13 +222,13 @@ with (import ./release-lib.nix);
   openssh = linux;
   openssl = all;
   pam_console = linux;
-  pam_ldap = linux;
   pam_login = linux;
   pam_unix2 = linux;
   pan = gtkSupported;
   par2cmdline = all;
   pavucontrol = linux;
   pciutils = linux;
+  pdf2xml = all;
   perl = all;
   php = linux;
   pidgin = linux;
@@ -276,7 +270,6 @@ with (import ./release-lib.nix);
   slim = linux;
   sloccount = allBut "i686-cygwin";
   smartmontools = all;
-  smbfsFuse = linux;
   socat = linux;
   spidermonkey = linux;
   splashutils = linux;
@@ -330,6 +323,7 @@ with (import ./release-lib.nix);
   vsftpd = linux;
   w3m = all;
   webkit = linux;
+  weechat = linux;
   wget = all;
   which = all;
   wicd = linux;
@@ -410,26 +404,37 @@ with (import ./release-lib.nix);
   };
 
   haskellPackages_ghc6104 = {
-    darcs = ghcSupported;
     ghc = ghcSupported;
     gtk2hs = linux;
-    leksah = linux;
-    lhs2tex = ghcSupported;
-    haskellPlatform = ghcSupported;
+    haskellPlatform_2009_2_0_2 = ghcSupported;
     xmonad = linux;
-    gitit = linux;
   };
 
   haskellPackages_ghc6121 = {
     darcs = ghcSupported;
     ghc = ghcSupported;
-    haskellPlatform2010100 = ghcSupported;
+    haskellPlatform_2010_1_0_0 = ghcSupported;
   };
 
   haskellPackages_ghc6122 = {
     darcs = ghcSupported;
     ghc = ghcSupported;
-    haskellPlatform2010100 = ghcSupported;
+    haskellPlatform_2010_1_0_0 = ghcSupported;
+  };
+
+  haskellPackages_ghc6123 = {
+    darcs = ghcSupported;
+    ghc = ghcSupported;
+    gitit = linux;
+    gtk = linux;
+    leksah = linux;
+    haskellPlatform_2010_2_0_0 = ghcSupported;
+    lhs2tex = ghcSupported;
+    xmonad = linux;
+  };
+
+  haskellPackages_ghc701 = {
+    ghc = ghcSupported;
   };
 
   kde3 = {
@@ -440,62 +445,8 @@ with (import ./release-lib.nix);
     kile = linux;
   };
 
-  kde44 = {
-    kdelibs = linux;
-    kdebase_workspace = linux;
-    kdebase = linux;
-    kdebase_runtime = linux;
-    oxygen_icons = linux;
-    kdepimlibs = linux;
-    kdeadmin = linux;
-    kdeartwork = linux;
-    kdeaccessibility = linux;
-    kdeedu = linux;
-    kdegraphics = linux;
-    kdemultimedia = linux;
-    kdenetwork = linux;
-    kdepim = linux;
-    kdepim_runtime = linux;
-    kdeplasma_addons = linux;
-    kdegames = linux;
-    kdetoys = linux;
-    kdeutils = linux;
-    kdesdk = linux;
-    kdewebdev = linux;
-    krusader = linux;
-    kmplayer = linux;
-    ktorrent = linux;
-    koffice = linux;
-    konversation = linux;
-    kdesvn = linux;
-    amarok = linux;
-    k3b = linux;
-    l10n.ca = linux;
-    l10n.de = linux;
-    l10n.fr = linux;
-    l10n.nl = linux;
-    l10n.ru = linux;
-  };
-
-  linuxPackages_2_6_25 = {
-    aufs = linux;
-    kernel = linux;
-  };
-
   linuxPackages_2_6_27 = {
     aufs = linux;
-    kernel = linux;
-    virtualbox = linux;
-    virtualboxGuestAdditions = linux;
-  };
-
-  linuxPackages_2_6_28 = {
-    kernel = linux;
-    virtualbox = linux;
-    virtualboxGuestAdditions = linux;
-  };
-
-  linuxPackages_2_6_29 = {
     kernel = linux;
     virtualbox = linux;
     virtualboxGuestAdditions = linux;
@@ -507,7 +458,13 @@ with (import ./release-lib.nix);
     virtualboxGuestAdditions = linux;
   };
 
-  linuxPackages_2_6_33 = {
+  linuxPackages_2_6_35 = {
+    kernel = linux;
+    virtualbox = linux;
+    virtualboxGuestAdditions = linux;
+  };
+
+  linuxPackages_2_6_36 = {
     kernel = linux;
     virtualbox = linux;
     virtualboxGuestAdditions = linux;
@@ -553,22 +510,45 @@ with (import ./release-lib.nix);
     lndir = all;
     setxkbmap = linux;
     xauth = linux;
+    xbitmaps = linux;
     xev = linux;
+    xf86inputevdev = linux;
     xf86inputkeyboard = linux;
     xf86inputmouse = linux;
-    xf86inputevdev = linux;
     xf86inputsynaptics = linux;
     xf86videoati = linux;
+    xf86videocirrus = linux;
     xf86videointel = linux;
     xf86videonv = linux;
     xf86videovesa = linux;
     xfs = linux;
     xkbcomp = linux;
+    xlsclients = linux;
     xmessage = linux;
     xorgserver = linux;
+    xprop = linux;    
     xrandr = linux;
     xrdb = linux;
     xset = linux;
+    xsetroot = linux;
+    xwininfo = linux;
+  };
+
+  xfce4 = {
+    gtk_xfce_engine = linux;
+    mousepad = linux;
+    ristretto = linux;
+    terminal = linux;
+    thunar = linux;
+    xfce4_power_manager = linux;
+    xfce4icontheme = linux;
+    xfce4mixer = linux;
+    xfce4panel = linux;
+    xfce4session = linux;
+    xfce4settings = linux;
+    xfceutils = linux;
+    xfdesktop = linux;
+    xfwm4 = linux;
   };
 
 } ))

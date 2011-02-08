@@ -27,9 +27,6 @@
 , # Whether to build a User-Mode Linux kernel.
   userModeLinux ? false
 
-, # Whether to build a Xen kernel.
-  xen ? false
-
 , # Allows you to set your own kernel version suffix (e.g.,
   # "-my-kernel").
   localVersion ? ""
@@ -37,11 +34,12 @@
 , preConfigure ? ""
 , extraMeta ? {}
 , ubootChooser ? null
+, postInstall ? ""
 , ...
 }:
 
 assert stdenv.system == "i686-linux" || stdenv.system == "x86_64-linux"
-  || stdenv.system == "armv5tel-linux";
+  || stdenv.system == "armv5tel-linux" || stdenv.system == "mips64-linux";
 
 assert stdenv.platform.name == "sheevaplug" -> stdenv.platform.uboot != null;
 
@@ -60,6 +58,8 @@ in
 stdenv.mkDerivation {
   name = if userModeLinux then "user-mode-linux-${version}" else "linux-${version}";
 
+  enableParallelBuilding = true;
+
   passthru = {
     inherit version;
     # Combine the `features' attribute sets of all the kernel patches.
@@ -70,7 +70,7 @@ stdenv.mkDerivation {
 
   generateConfig = ./generate-config.pl;
 
-  inherit preConfigure src module_init_tools localVersion;
+  inherit preConfigure src module_init_tools localVersion postInstall;
 
   patches = map (p: p.patch) kernelPatches;
 
@@ -91,11 +91,11 @@ stdenv.mkDerivation {
   # Should we trust platform.kernelArch? We can only do
   # that once we differentiate i686/x86_64 in platforms.
   arch =
-    if xen then "xen" else
     if userModeLinux then "um" else
     if stdenv.system == "i686-linux" then "i386" else
     if stdenv.system == "x86_64-linux" then "x86_64" else
     if stdenv.system == "armv5tel-linux" then "arm" else
+    if stdenv.system == "mips64-linux" then "mips" else
     abort "Platform ${stdenv.system} is not supported.";
 
   crossAttrs = let

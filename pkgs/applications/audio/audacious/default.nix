@@ -4,16 +4,16 @@
 }:
 
 stdenv.mkDerivation rec {
-  name = "audacious-2.3";
+  name = "audacious-2.4.2";
   
   src = fetchurl {
     url = "http://distfiles.atheme.org/${name}.tgz";
-    sha256 = "0vs16y1vrlkzcbaw8imc36b9lncva69zkdkp38ikbidssiskm6xi";
+    sha256 = "03dd0fn17znjbmnc7hiafsg1axiwysk9q4r21s6giy2yfwhi8b30";
   };
 
   pluginsSrc = fetchurl {
-    url = "http://distfiles.atheme.org/audacious-plugins-2.3.tgz";
-    sha256 = "0hdami52qpiyim3nz3qnml85wgjzpmx6g2wahfnsdvncmhm4v93x";
+    url = "http://distfiles.atheme.org/audacious-plugins-2.4.2.tgz";
+    sha256 = "1a2vbqyamlpvnhr3mm8b5i9304d16c796v2ycw3i396ppjvnhyxz";
   };
   
   # `--enable-amidiplug' is to prevent configure from looking in /proc/asound.

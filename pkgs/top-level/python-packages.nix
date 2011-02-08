@@ -4,11 +4,11 @@ rec {
   inherit (pkgs) fetchurl fetchsvn stdenv;
 
   argparse = buildPythonPackage (rec {
-    name = "argparse-0.9.1";
+    name = "argparse-1.1";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/a/argparse/${name}.zip";
-      sha256 = "00jw32wwccpf9smraywjk869b93w7f99rw8gi63yfhw6379fnq6m";
+      sha256 = "ee6da1aaad8b08a74a33eb82264b1a2bf12a7d5aefc7e9d7d40a8f8fa9912e62";
     };
 
     buildInputs = [ pkgs.unzip ];
@@ -77,6 +77,22 @@ rec {
     };
   });
 
+  cherrypy = buildPythonPackage (rec {
+    name = "cherrypy-3.1.2";
+
+    src = fetchurl {
+      url = "http://download.cherrypy.org/cherrypy/3.1.2/CherryPy-3.1.2.tar.gz";
+      sha256 = "1xlvanhnxgvwd7vvypbafyl6yqfkpnwa9rs9k3058z84gd86bz8d";
+    };
+
+    doCheck = false;
+
+    meta = {
+      homepage = "http://www.cherrypy.org";
+      description = "A pythonic, object-oriented HTTP framework";
+    };
+  });
+
   clientform = buildPythonPackage (rec {
     name = "clientform-0.2.10";
 
@@ -117,11 +133,11 @@ rec {
   });
 
   darcsver = buildPythonPackage (rec {
-    name = "darcsver-1.3.1";
+    name = "darcsver-1.5.1";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/d/darcsver/${name}.tar.gz";
-      sha256 = "1a5cl2yhnd88a4vkc9r381cbjkcvga87dp9zx5av68857q1nvvvq";
+      sha256 = "e643d607f27e4b8cc96565432ff1abdc2af5e9061c70798e2f33e78c07b66b3a";
     };
 
     # Note: We don't actually need to provide Darcs as a build input.
@@ -155,12 +171,26 @@ rec {
     };
   });
 
+  flup = buildPythonPackage (rec {
+    name = "flup-1.0.2";
+
+    src = fetchurl {
+      url = "http://www.saddi.com/software/flup/dist/${name}.tar.gz";
+      sha256 = "1nbx174g40l1z3a8arw72qz05a1qxi3didp9wm7kvkn1bxx33bab";
+    };
+
+    meta = {
+      homepage = "http://trac.saddi.com/flup";
+      description = "FastCGI Python module set";
+    };
+  });
+
   foolscap = buildPythonPackage (rec {
-    name = "foolscap-0.4.2";
+    name = "foolscap-0.5.1";
 
     src = fetchurl {
       url = "http://foolscap.lothar.com/releases/${name}.tar.gz";
-      sha256 = "14g89kjxxci3ssl9jgvpkyrcq62g361aw8pamlkclk8nnrh4f776";
+      sha256 = "c7dfb6f9331e05a8d9553730493b4740c7bf4b4cd68ba834061f0ca0d455492d";
     };
 
     propagatedBuildInputs = [ twisted pkgs.pyopenssl ];
@@ -238,6 +268,24 @@ rec {
       '';
     };
   };
+
+  libcloud = buildPythonPackage (rec {
+    name = "libcloud-0.3.1";
+
+    src = fetchurl {
+      url = mirror://apache/incubator/libcloud/apache-libcloud-incubating-0.3.1.tar.bz2;
+      sha256 = "11qilrs4sd4c1mkd64ikrjsc2vwrshhc54n5mh4xrark9c7ayp0y";
+    };
+
+    buildInputs = [ zopeInterface ];
+
+    preConfigure = "cp test/secrets.py-dist test/secrets.py";
+
+    meta = {
+      description = "A unified interface to many cloud providers";
+      homepage = http://incubator.apache.org/libcloud/;
+    };
+  });
 
   lxml = buildPythonPackage ( rec {
     name = "lxml-2.2.2";
@@ -322,6 +370,41 @@ rec {
     };
   });
 
+  mock060 = pkgs.lowPrio (buildPythonPackage (rec {
+    # TODO: This appears to be an unofficially hacked version of 'mock'
+    #       from above. This could probably replace the previous
+    #       package, but I don't have time to test that right now.
+    name = "mock-0.6.0";
+
+    src = fetchurl {
+      url = "http://tahoe-lafs.org/source/tahoe-lafs/deps/tahoe-dep-sdists/${name}.tar.bz2";
+      sha256 = "1vwxzr2sjyl3x5jqgz9swpmp6cyhmwmab65akysfglf6acmn3czf";
+    };
+    doCheck = false;            # Package doesn't have any tests.
+
+    meta = {
+      description = "Mock objects for Python, provided by tahoe-lafs.org";
+      homepage = "http://python-mock.sourceforge.net/";
+      license = "mBSD";
+    };
+  }));
+
+  mutagen = buildPythonPackage (rec {
+    name = "mutagen-1.20";
+
+    src = fetchurl {
+      url = "http://mutagen.googlecode.com/files/${name}.tar.gz";
+      sha256 = "1rz63nh7r6qj3zsidf8d3a7ih647prvvqzi51p8dqkqmvrwc8mky";
+    };
+
+    meta = {
+      description = "Python multimedia tagging library";
+      homepage = http://code.google.com/p/mutagen;
+      license = "LGPLv2";
+    };
+  });
+
+
   namebench = buildPythonPackage (rec {
     name = "namebench-1.0.5";
 
@@ -356,11 +439,12 @@ rec {
   });
 
   nevow = buildPythonPackage (rec {
-    name = "nevow-0.9.33";
+    name = "nevow-${version}";
+    version = "0.10.0";
 
     src = fetchurl {
-      url = "http://divmod.org/trac/attachment/wiki/SoftwareReleases/Nevow-0.9.33.tar.gz?format=raw";
-      sha256 = "1b6zhfxx247b60n1qi2hrawhiaah88v8igg37pf7rjkmvy2z1c6c";
+      url = "http://divmod.org/trac/attachment/wiki/SoftwareReleases/Nevow-${version}.tar.gz?format=raw";
+      sha256 = "90631f68f626c8934984908d3df15e7c198939d36be7ead1305479dfc67ff6d0";
       name = "${name}.tar.gz";
     };
 
@@ -395,6 +479,19 @@ rec {
     };
   });
 
+  nose = buildPythonPackage {
+    name = "nose-0.11.3";
+    
+    src = fetchurl {
+      url = http://python-nose.googlecode.com/files/nose-0.11.3.tar.gz;
+      sha256 = "1hl3lbwdfl2a64q3dxc73kbiks4iwx5cixlbavyryd8xdr7iziww";
+    };
+    
+    meta = {
+      description = "A unittest-based testing framework for python that makes writing and running tests easier";
+    };
+  };
+
   notify = pkgs.stdenv.mkDerivation (rec {
     name = "python-notify-0.1.1";
 
@@ -419,16 +516,16 @@ rec {
       sha256 = "01lf3nc2lp1qkrqnnar50vb7i6y07d1zs6f9yc3kw4p5fd2vhyrf";
     };
 
+    # TODO: add ATLAS=${pkgs.atlas}
+    installCommand = ''
+      export BLAS=${pkgs.blas} LAPACK=${pkgs.liblapack}
+      python setup.py build --fcompiler="gnu95"
+      python setup.py install --root="$out"
+    '';
     doCheck = false;
 
-    buildInputs = [ pkgs.liblapack pkgs.blas /* pkgs.gfortran */ ];
-
-    # The build should be run as follows:
-    #
-    #   python setup.py config_fc --fcompiler=gnu95 build
-    #   python setup.py config_fc --fcompiler=gnu95 install
-    #
-    # But I con't figure out how to pass the extra flags to setuptools.
+    buildInputs = [ pkgs.gfortran ];
+    propagatedBuildInputs = [ pkgs.liblapack pkgs.blas ];
 
     meta = {
       description = "Scientific tools for Python";
@@ -470,6 +567,75 @@ rec {
     };
   });
 
+  paramiko = buildPythonPackage {
+    name = "paramiko-1.7.6";
+
+    src = fetchurl {
+      url = "http://www.lag.net/paramiko/download/paramiko-1.7.6.tar.gz";
+      sha256 = "00jhzl3s9xdkbj32h1kq1swk8wpx9zky7qfda40n8mb204xjcn9h";
+    };
+
+    buildInputs = [ pkgs.pycrypto ];
+
+    doCheck = false;
+
+    meta = {
+      homepage = "http://www.lag.net/paramiko/";
+      description = "SSH2 protocol for python";
+      license = "LGPL";
+
+      longDescription = ''
+        paramiko is a module for python 2.2 (or higher) that implements the
+        SSH2 protocol for secure (encrypted and authenticated) connections to
+        remote machines. unlike SSL (aka TLS), SSH2 protocol does not require
+        heirarchical certificates signed by a powerful central authority. you
+        may know SSH2 as the protocol that replaced telnet and rsh for secure
+        access to remote shells, but the protocol also includes the ability
+        to open arbitrary channels to remote services across the encrypted
+        tunnel -- this is how sftp works, for example.  it is written
+        entirely in python (no C or platform-dependent code) and is released
+        under the GNU LGPL (lesser GPL).  '';
+
+      platforms = python.meta.platforms;
+    };
+  };
+
+  pexpect = buildPythonPackage {
+    name = "pexpect-2.3";
+
+    src = fetchurl {
+      url = "http://pexpect.sourceforge.net/pexpect-2.3.tar.gz";
+      sha256 = "0x8bfjjqygriry1iyygm5048ykl5qpbpzqfp6i8dhkslm3ryf5fk";
+    };
+
+    doCheck = false;
+
+    meta = {
+      homepage = "http://www.noah.org/wiki/Pexpect";
+      description = "Automate interactive console applications such as ssh, ftp, etc.";
+      license = "MIT";
+
+      longDescription = ''
+        Pexpect is similar to the Don Libes "Expect" system, but Pexpect
+        as a different interface that is easier to understand. Pexpect
+        is basically a pattern matching system. It runs programs and
+        watches output. When output matches a given pattern Pexpect can
+        respond as if a human were typing responses. Pexpect can be used
+        for automation, testing, and screen scraping. Pexpect can be
+        used for automating interactive console applications such as
+        ssh, ftp, passwd, telnet, etc. It can also be used to control
+        web applications via "lynx", "w3m", or some other text-based web
+        browser. Pexpect is pure Python. Unlike other Expect-like
+        modules for Python Pexpect does not require TCL or Expect nor
+        does it require C extensions to be compiled. It should work on
+        any platform that supports the standard Python pty module.
+      '';
+
+      maintainers = [ stdenv.lib.maintainers.simons ];
+      platforms = python.meta.platforms;
+    };
+  };
+
   psycopg2 = buildPythonPackage rec {
     name = "psycopg2-2.0.13";
 
@@ -508,14 +674,15 @@ rec {
   });
 
   pycryptopp = buildPythonPackage (rec {
-    name = "pycryptopp-0.5.15";
+    name = "pycryptopp-0.5.19";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/p/pycryptopp/${name}.tar.gz";
-      sha256 = "0f8v3cs8vjpj423yx3ikj7qjvljrm86x0qpkckidv69kah8kndxa";
+      sha256 = "6b610b3e5742d366d4fbe96b5f20d8459db9aba4fb802e6e5aab547f22ad04b9";
     };
 
-    # Use our own copy of Crypto++.
+    # Prefer crypto++ library from the Nix store over the one that's included
+    # in the pycryptopp distribution.
     preConfigure = "export PYCRYPTOPP_DISABLE_EMBEDDED_CRYPTOPP=1";
 
     buildInputs = [ setuptoolsDarcs darcsver pkgs.cryptopp ];
@@ -615,15 +782,18 @@ rec {
   });
 
   pyutil = buildPythonPackage (rec {
-    name = "pyutil-1.3.30";
+    name = "pyutil-1.7.9";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/p/pyutil/${name}.tar.gz";
-      sha256 = "1ksb4gn8x53wcyddmjv1ma8cvvhjlmfxc6kpszyhb838i7xzla19";
+      sha256 = "c303bb779f96073820e2eb7c9692fe15a57df491eb356839f3cb3377ed03b844";
     };
 
-    buildInputs = [ setuptoolsDarcs ];
-    propagatedBuildInputs = [ zbase32 argparse ];
+    buildInputs = [ setuptoolsDarcs setuptoolsTrial ] ++ (if doCheck then [ simplejson ] else []);
+    propagatedBuildInputs = [ zbase32 argparse twisted ];
+    # Tests fail because they try to write new code into the twisted
+    # package, apparently some kind of plugin.
+    doCheck = false;
 
     meta = {
       description = "Pyutil, a collection of mature utilities for Python programmers";
@@ -662,16 +832,122 @@ rec {
     };
   });
 
-  setuptoolsDarcs = buildPythonPackage {
-    name = "setuptools-darcs-1.2.8";
+  rdflib = buildPythonPackage (rec {
+    name = "rdflib-3.0.0";
 
     src = fetchurl {
-      url = "http://pypi.python.org/packages/source/s/setuptools_darcs/setuptools_darcs-1.2.8.tar.gz";
-      sha256 = "0jg9q9mhsky444mm7lpmmlxai8hmjg4pc71viv4kni8gls0gk9n8";
+      url = "http://www.rdflib.net/${name}.tar.gz";
+      sha256 = "1c7ipk5vwqnln83rmai5jzyxkjdajdzbk5cgy1z83nyr5hbkgkqr";
+    };
+
+    doCheck = false;
+
+    postInstall = ''
+      find $out -name easy-install.pth | xargs rm -v
+      find $out -name 'site.py*' | xargs rm -v
+    '';
+
+    meta = {
+      description = "RDFLib is a Python library for working with RDF, a simple yet powerful language for representing information.";
+      homepage = http://www.rdflib.net/;
+    };
+  });
+
+  pysvn = pkgs.stdenv.mkDerivation {
+    name = "pysvn-1.7.2";
+
+    src = fetchurl {
+      url = "http://pysvn.barrys-emacs.org/source_kits/pysvn-1.7.2.tar.gz";
+      sha256 = "2b2980d200515e754e00a12d99dbce25c1ea90fddf8cba2bfa354c9305c5e455";
+    };
+
+    buildInputs = [ python pkgs.subversion pkgs.apr pkgs.aprutil pkgs.expat pkgs.neon pkgs.openssl ]
+      ++ (if stdenv.isLinux then [pkgs.e2fsprogs] else []);
+
+    # There seems to be no way to pass that path to configure.
+    NIX_CFLAGS_COMPILE="-I${pkgs.aprutil}/include/apr-1";
+
+    configurePhase = ''
+      cd Source
+      python setup.py backport
+      python setup.py configure \
+        --apr-inc-dir=${pkgs.apr}/include/apr-1 \
+        --apr-lib-dir=${pkgs.apr}/lib \
+        --svn-root-dir=${pkgs.subversion}
+    '' + (if !stdenv.isDarwin then "" else ''
+      sed -i -e 's|libpython2.7.dylib|lib/libpython2.7.dylib|' Makefile
+    '');
+
+    # The regression test suite expects locale support, which our glibc
+    # doesn't have by default.
+    doCheck = false;
+    checkPhase = "make -C ../Tests";
+
+    installPhase = ''
+      dest=$(toPythonPath $out)/pysvn
+      ensureDir $dest
+      cp pysvn/__init__.py $dest/
+      cp pysvn/_pysvn*.so $dest/
+      ensureDir $out/share/doc
+      mv -v ../Docs $out/share/doc/pysvn-1.7.2
+      rm -v $out/share/doc/pysvn-1.7.2/generate_cpp_docs_from_html_docs.py
+    '';
+
+    meta = {
+      description = "Python bindings for Subversion";
+      homepage = "http://pysvn.tigris.org/";
+    };
+  };
+
+  magic = pkgs.stdenv.mkDerivation rec {
+    name = "python-${pkgs.file.name}";
+
+    src = pkgs.file.src;
+
+    buildInputs = [ python pkgs.file ];
+
+    configurePhase = "cd python";
+
+    buildPhase = "python setup.py build";
+
+    installPhase = "python setup.py install --prefix=$out";
+
+    meta = {
+      description = "A Python wrapper around libmagic";
+      homepage = http://www.darwinsys.com/file/;
+    };
+  };
+  
+  MySQL_python = buildPythonPackage {
+    name = "MySQL-python-1.2.3";
+    
+    doCheck = false;
+    
+    src = fetchurl {
+      url = mirror://sourceforge/mysql-python/MySQL-python-1.2.3.tar.gz;
+      sha256 = "0vkyg9dmj29hzk7fy77f42p7bfj28skyzsjsjry4wqr3z6xnzrkx";
+    };
+    
+    propagatedBuildInputs = [ pkgs.mysql pkgs.zlib nose ];
+    
+    meta = {
+      description = "MySQL database binding for Python";
+
+      homepage = http://sourceforge.net/projects/mysql-python;
+    };
+  };
+
+  setuptoolsDarcs = buildPythonPackage {
+    name = "setuptools-darcs-1.2.9";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/s/setuptools_darcs/setuptools_darcs-1.2.9.tar.gz";
+      sha256 = "d37ce11030addbd729284c441facd0869cdc6e5c888dc5fa0a6f1edfe3c3e617";
     };
 
     # In order to break the dependency on darcs -> ghc, we don't add
     # darcs as a propagated build input.
+    propagatedBuildInputs = [ darcsver ];
 
     meta = {
       description = "setuptools plugin for the Darcs version control system";
@@ -683,11 +959,11 @@ rec {
   };
 
   setuptoolsTrial = buildPythonPackage {
-    name = "setuptools-trial-0.5.3";
+    name = "setuptools-trial-0.5.9";
 
     src = fetchurl {
-      url = "http://pypi.python.org/packages/source/s/setuptools_trial/setuptools_trial-0.5.3.tar.gz";
-      sha256 = "0h3mgjsz3z1sjl9j0b6bv4bss8d0przamj4gnjmpyazc633hhlyi";
+      url = "http://pypi.python.org/packages/source/s/setuptools_trial/setuptools_trial-0.5.9.tar.gz";
+      sha256 = "4e3b5a183b9cf6ff637777c9852dfe8eaab156289e7a578525d68b1cfb3c9f29";
     };
 
     propagatedBuildInputs = [ twisted ];
@@ -702,12 +978,11 @@ rec {
   };
 
   simplejson = buildPythonPackage (rec {
-    name = "simplejson-2.0.9";
+    name = "simplejson-2.1.1";
 
-    src = fetchsvn {
-      url = "http://simplejson.googlecode.com/svn/tags/${name}";
-      sha256 = "a48d5256fdb4f258c33da3dda110ecf3c786f086dcb08a01309acde6d1ddb921";
-      rev = "172";  # to be on the safe side
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/s/simplejson/${name}.tar.gz";
+      sha256 = "8c1c833c5b997bf7b75bf9a02a2d2884b8427816228eac0fb84791be44d2f612";
     };
 
     meta = {
@@ -749,11 +1024,11 @@ rec {
   };
 
   twisted = buildPythonPackage {
-    name = "twisted-10.0.0";
+    name = "twisted-10.1.0";
 
     src = fetchurl {
-      url = http://tmrc.mit.edu/mirror/twisted/Twisted/10.0/Twisted-10.0.0.tar.bz2;
-      sha256 = "1cbqpvwdwsc2av43fyqqdyyxs2j3drbagnl9m5vk7fl9k5q8q4fv";
+      url = http://tmrc.mit.edu/mirror/twisted/Twisted/10.1/Twisted-10.1.0.tar.bz2;
+      sha256 = "eda6e0e9e5ef6f6c19ab75bcb094f83a12ee25fe589fbcddf946e8a655c8070b";
     };
 
     propagatedBuildInputs = [ zopeInterface ];
@@ -782,11 +1057,11 @@ rec {
   };
 
   zbase32 = buildPythonPackage (rec {
-    name = "zbase32-1.1.1";
+    name = "zbase32-1.1.2";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/z/zbase32/${name}.tar.gz";
-      sha256 = "0n59l4rs26vrhxpsfrwybjjir68aj23f09k1yjnbxqy5n0khp8gm";
+      sha256 = "2f44b338f750bd37b56e7887591bf2f1965bfa79f163b6afcbccf28da642ec56";
     };
 
     # Tests require `pyutil' so disable them to avoid circular references.
@@ -804,11 +1079,11 @@ rec {
   });
 
   zfec = buildPythonPackage (rec {
-    name = "zfec-1.4.4";
+    name = "zfec-1.4.7";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/z/zfec/${name}.tar.gz";
-      sha256 = "0rgg7nsvbr4f9xmiclzypc39fnivg23kldv5aa8si0bgsxn6mh6w";
+      sha256 = "3335c9054f45e2c59188400e892634b68761b29d06f3cafe525c60484902d379";
     };
 
     buildInputs = [ setuptoolsDarcs ];
@@ -833,10 +1108,10 @@ rec {
   });
 
   zopeInterface = buildPythonPackage {
-    name = "zope-interface-3.3.0";
+    name = "zope-interface-3.6.1";
     src = fetchurl {
-      url = http://www.zope.org/Products/ZopeInterface/3.3.0/zope.interface-3.3.0.tar.gz;
-      sha256 = "0xahg9cmagn4j3dbifvgzbjliw2jdrbf27fhqwkdp8j80xpyyjf0";
+      url = "http://pypi.python.org/packages/source/z/zope.interface/zope.interface-3.6.1.tar.gz";
+      sha256 = "294c3c0529e84169177bce78d616c768fa1c028a2fbc1854f615d32ed88dbc6c";
     };
 
     doCheck = false;

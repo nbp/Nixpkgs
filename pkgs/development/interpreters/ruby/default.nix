@@ -1,27 +1,40 @@
-{ stdenv, fetchurl, ncurses, readline
-, zlib ? null
-, openssl ? null
-, gdbm ? null
+{ stdenv, fetchurl
+, zlib, zlibSupport ? true
+, openssl, opensslSupport ? true
+, gdbm, gdbmSupport ? true
+, ncurses, readline, cursesSupport ? false
+, groff, docSupport ? false
 }:
 
+let
+  op = stdenv.lib.optional;
+  ops = stdenv.lib.optionals;
+in
+
 stdenv.mkDerivation rec {
-  version = "1.8.7-p299";
+  version = with passthru; "${majorVersion}.${minorVersion}-p${patchLevel}";
   
   name = "ruby-${version}";
   
   src = fetchurl {
     url = "ftp://ftp.ruby-lang.org/pub/ruby/1.8/${name}.tar.gz";
-    sha256 = "0ys2lpri2w3174axhi96vq17lrvk2ngj7f2m42a9008a7n79rj9j";
+    sha256 = "0qf50wa1ziziagnxarj8z6yrsivrhchq1j9017ff3z2z7d31l9kc";
   };
 
-  buildInputs = [ncurses readline]
-    ++ (stdenv.lib.optional (zlib != null) zlib)
-    ++ (stdenv.lib.optional (openssl != null) openssl)
-    ++ (stdenv.lib.optional (gdbm != null) gdbm);
+  # Have `configure' avoid `/usr/bin/nroff' in non-chroot builds.
+  NROFF = "${groff}/bin/nroff";
+
+  buildInputs = (ops cursesSupport [ ncurses readline ] )
+    ++ (op docSupport groff )
+    ++ (op zlibSupport zlib)
+    ++ (op opensslSupport openssl)
+    ++ (op gdbmSupport gdbm);
     
   configureFlags = ["--enable-shared" "--enable-pthread"];
 
-  # NIX_LDFLAGS = "-lpthread -lutil";
+  installFlags = stdenv.lib.optionalString docSupport "install-doc";
+  # Bundler tries to create this directory
+  postInstall = "mkdir -pv $out/${passthru.gemPath}";
 
   meta = {
     license = "Ruby";
@@ -29,8 +42,11 @@ stdenv.mkDerivation rec {
     description = "The Ruby language";
   };
 
-  passthru = {
-    # install ruby libs into "$out/${ruby.libPath}"
-    libPath = "lib/ruby-1.8";
+  passthru = rec {
+    majorVersion = "1.8";
+    minorVersion = "7";
+    patchLevel = "330";
+    libPath = "lib/ruby/${majorVersion}";
+    gemPath = "lib/ruby/gems/${majorVersion}";
   };
 }

@@ -1,31 +1,43 @@
-{fetchurl, stdenv, replace, ncurses}:
+{fetchurl, stdenv, replace, curl, expat, zlib
+, useNcurses ? false, ncurses, useQt4 ? false, qt4}:
 
-stdenv.mkDerivation rec {
-  name = "cmake-2.8.1";
-
-  # We look for cmake modules in .../share/cmake-${majorVersion}/Modules.
+let
+  os = stdenv.lib.optionalString;
   majorVersion = "2.8";
+  minorVersion = "1";
+  version = "${majorVersion}.${minorVersion}";
+in
+stdenv.mkDerivation rec {
+  name = "cmake-${os useNcurses "cursesUI-"}${os useQt4 "qt4UI-"}${version}";
 
-  setupHook = ./setup-hook.sh;
-
-  meta = {
-    homepage = http://www.cmake.org/;
-    description = "Cross-Platform Makefile Generator";
-  };
+  inherit majorVersion;
 
   src = fetchurl {
-    url = "http://www.cmake.org/files/v${majorVersion}/${name}.tar.gz";
+    url = "${meta.homepage}files/v${majorVersion}/cmake-${version}.tar.gz";
     sha256 = "0hi28blqxvir0dkhln90sgr0m3ri9n2i3hlmwdl4m5vkfsmp9bky";
   };
+
+  buildInputs = [ curl expat zlib ]
+    ++ stdenv.lib.optional useNcurses ncurses
+    ++ stdenv.lib.optional useQt4 qt4;
+
+  CMAKE_PREFIX_PATH = stdenv.lib.concatStringsSep ":" buildInputs;
+  configureFlags =
+    "--docdir=/share/doc/${name} --mandir=/share/man --system-libs"
+    + stdenv.lib.optionalString useQt4 " --qt-gui";
+
+  setupHook = ./setup-hook.sh;
 
   postUnpack = ''
     dontUseCmakeConfigure=1
     source $setupHook
     fixCmakeFiles $sourceRoot
-    echo 'SET (CMAKE_SYSTEM_PREFIX_PATH "'${ncurses}'" CACHE FILEPATH "Root for libs for cmake" FORCE)' > $sourceRoot/cmakeInit.txt
   '';
 
-  configureFlags= [ " --init=cmakeInit.txt " ];
-
-  postInstall = "fixCmakeFiles $out/share";
+  meta = {
+    homepage = http://www.cmake.org/;
+    description = "Cross-Platform Makefile Generator";
+    platforms = if useQt4 then qt4.meta.platforms else (with stdenv.lib.platforms; linux ++ freebsd);
+    maintainers = [ stdenv.lib.maintainers.urkud ];
+  };
 }

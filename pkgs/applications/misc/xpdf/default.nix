@@ -8,13 +8,13 @@ assert enablePDFtoPPM -> freetype != null;
 assert useT1Lib -> t1lib != null;
 
 stdenv.mkDerivation {
-  name = "xpdf-3.02pl4";
+  name = "xpdf-3.02pl5";
 
   src = fetchurl {
     url = ftp://ftp.foolabs.com/pub/xpdf/xpdf-3.02.tar.gz;
     sha256 = "000zq4ddbwyxiki4vdwpmxbnw5n9hsg9hvwra2p33hslyib7sfmk";
   };
-  
+
   buildInputs =
     (if enableGUI then [x11 motif] else []) ++
     (if useT1Lib then [t1lib] else []);
@@ -36,15 +36,19 @@ stdenv.mkDerivation {
       url = ftp://ftp.foolabs.com/pub/xpdf/xpdf-3.02pl4.patch;
       sha256 = "1c48h7aizx0ngmzlzw0mpja1w8vqyy3pg62hyxp7c60k86al715h";
     })
+    (fetchurl {
+      url = ftp://ftp.foolabs.com/pub/xpdf/xpdf-3.02pl5.patch;
+      sha256 = "1fki66pw56yr6aw38f6amrx7wxwcxbx4704pjqq7pqqr784b7z4j";
+    })
     ./xpdf-3.02-protection.patch
   ];
-    
+
   configureFlags =
-    [ "--enable-a4-paper" ] /* We obey ISO standards! */
-    ++ (if enablePDFtoPPM then [
-      "--with-freetype2-library=${freetype}/lib"
-      "--with-freetype2-includes=${freetype}/include/freetype2"
-    ] else []);
+    "--infodir=$out/share/info --mandir=$out/share/man --enable-a4-paper"
+    + (if enablePDFtoPPM then
+         " --with-freetype2-library=${freetype}/lib"
+         + " --with-freetype2-includes=${freetype}/include/freetype2"
+       else "");
 
   postInstall = "
     if test -n \"${base14Fonts}\"; then
@@ -53,4 +57,12 @@ stdenv.mkDerivation {
         --replace '#displayFontT1' displayFontT1
     fi
   ";
+
+  meta = {
+    homepage = "http://www.foolabs.com/xpdf/";
+    description = "viewer for Portable Document Format (PDF) files";
+
+    platforms = stdenv.lib.platforms.unix;
+    maintainers = [ stdenv.lib.maintainers.simons ];
+  };
 }

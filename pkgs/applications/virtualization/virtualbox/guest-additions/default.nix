@@ -1,31 +1,41 @@
-{ stdenv, fetchurl, lib, patchelf, cdrkit, kernel
-, libX11, libXt, libXext, libXmu, libXcomposite, libXfixes}:
+{ stdenv, fetchurl, lib, patchelf, cdrkit, kernel, which, makeWrapper
+, libX11, libXt, libXext, libXmu, libXcomposite, libXfixes, libXrandr, libXcursor}:
 
 stdenv.mkDerivation {
-  name = "VirtualBox-GuestAdditions-3.1.8";
+  name = "VirtualBox-GuestAdditions-4.0.2";
   src = fetchurl {
-    url = http://download.virtualbox.org/virtualbox/3.1.8/VBoxGuestAdditions_3.1.8.iso;
-    sha256 = "11fn49zxmd7nxmqn9pcakmzj6j9f8kfb38czpl8fhbnl2k4ggj5q";
+    url = http://download.virtualbox.org/virtualbox/4.0.2/VBoxGuestAdditions_4.0.2.iso;
+    sha256 = "4c8726f70d4202747d35e1ad715ca9dcd29be1fe74720492097d7fb83cae7988";
   };
   KERN_DIR = "${kernel}/lib/modules/*/build";
-  buildInputs = [ patchelf cdrkit ];
+  buildInputs = [ patchelf cdrkit makeWrapper ];
+
+  installPhase = ''
+    ensureDir $out
+    cp -r install/* $out
+
+  '';
+  
   buildCommand = ''
-    ${if stdenv.system == "i686-linux" then ''
-        isoinfo -J -i $src -x /VBoxLinuxAdditions-x86.run > ./VBoxLinuxAdditions-x86.run
-        chmod 755 ./VBoxLinuxAdditions-x86.run
-        ./VBoxLinuxAdditions-x86.run --noexec --keep
-      ''
-      else if stdenv.system == "x86_64-linux" then ''
-        isoinfo -J -i $src -x /VBoxLinuxAdditions-amd64.run > ./VBoxLinuxAdditions-amd64.run
-        chmod 755 ./VBoxLinuxAdditions-amd64.run
-	./VBoxLinuxAdditions-amd64.run --noexec --keep
+    ${if stdenv.system == "i686-linux" || stdenv.system == "x86_64-linux" then ''
+        isoinfo -J -i $src -x /VBoxLinuxAdditions.run > ./VBoxLinuxAdditions.run
+        chmod 755 ./VBoxLinuxAdditions.run
+	./VBoxLinuxAdditions.run --noexec --keep
       ''
       else throw ("Architecture: "+stdenv.system+" not supported for VirtualBox guest additions")
     }
     
     # Unpack files
     cd install
-    tar xfvj VBoxGuestAdditions.tar.bz2
+    ${if stdenv.system == "i686-linux" then ''
+        tar xfvj VBoxGuestAdditions-x86.tar.bz2
+      ''
+      else if stdenv.system == "x86_64-linux" then ''
+        tar xfvj VBoxGuestAdditions-amd64.tar.bz2
+      ''
+      else throw ("Architecture: "+stdenv.system+" not supported for VirtualBox guest additions")
+    }
+
     
     # Build kernel modules    
     cd src        
@@ -34,9 +44,11 @@ stdenv.mkDerivation {
     do
 	cd $i
 	sed -i -e "s/depmod/echo/g" Makefile
+	sed -i -e "s/depmod/echo/g" */Makefile
 	make
 	cd ..
     done
+
     cd ..
     
     # Change the interpreter for various binaries
@@ -53,7 +65,7 @@ stdenv.mkDerivation {
     done
 
     # Change rpath for various binaries and libraries
-    patchelf --set-rpath ${stdenv.gcc.gcc}/lib:${libX11}/lib:${libXt}/lib:${libXext}/lib:${libXmu}/lib:${libXfixes}/lib bin/VBoxClient
+    patchelf --set-rpath ${stdenv.gcc.gcc}/lib:${libX11}/lib:${libXt}/lib:${libXext}/lib:${libXmu}/lib:${libXfixes}/lib:${libXrandr}/lib:${libXcursor}/lib bin/VBoxClient
 
     for i in lib/VBoxOGL*.so
     do
@@ -73,6 +85,9 @@ stdenv.mkDerivation {
     install -m 755 bin/VBoxControl $out/bin
     install -m 755 bin/VBoxClient-all $out/bin
 
+    wrapProgram $out/bin/VBoxClient-all \
+            --prefix PATH : "${which}/bin"
+
     # Install OpenGL libraries
     ensureDir $out/lib
     cp -v lib/VBoxOGL*.so $out/lib
@@ -89,8 +104,8 @@ stdenv.mkDerivation {
     
     # Install Xorg drivers
     ensureDir $out/lib/xorg/modules/{drivers,input}
-    install -m 644 lib/VBoxGuestAdditions/vboxvideo_drv_17.so $out/lib/xorg/modules/drivers/vboxvideo_drv.so
-    install -m 644 lib/VBoxGuestAdditions/vboxmouse_drv_17.so $out/lib/xorg/modules/input/vboxmouse_drv.so
+    install -m 644 lib/VBoxGuestAdditions/vboxvideo_drv_18.so $out/lib/xorg/modules/drivers/vboxvideo_drv.so
+    install -m 644 lib/VBoxGuestAdditions/vboxmouse_drv_18.so $out/lib/xorg/modules/input/vboxmouse_drv.so
     
     # Install kernel modules
     cd src

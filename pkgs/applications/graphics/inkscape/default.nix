@@ -1,11 +1,14 @@
-args: with args;
+{ stdenv, fetchurl, pkgconfig, perl, perlXMLParser, gtk, libXft
+, libpng, zlib, popt, boehmgc, libxml2, libxslt, glib, gtkmm
+, glibmm, libsigcxx, lcms, boost, gettext, makeWrapper, intltool
+, gsl, python, pyxml, lxml, poppler }:
 
 stdenv.mkDerivation rec {
-  name = "inkscape-0.47";
+  name = "inkscape-0.48.0";
 
   src = fetchurl {
-    url = "mirror://sourceforge/inkscape/${name}.tar.gz";
-    sha256 = "15wvcllq0nj69hkyanzvxbjhlq06cwabqabaa54n5n4307hrp2g5";
+    url = "mirror://sourceforge/inkscape/${name}.tar.bz2";
+    sha256 = "0w72xf76vxpm3fpslmix0x71l2rd2sdhrvgwx2vk7hxfjqdxib1n";
   };
 
   patches = [ ./configure-python-libs.patch ]; 
@@ -19,7 +22,7 @@ stdenv.mkDerivation rec {
   buildInputs = [
     pkgconfig perl perlXMLParser gtk libXft libpng zlib popt boehmgc
     libxml2 libxslt glib gtkmm glibmm libsigcxx lcms boost gettext
-    makeWrapper intltool gsl
+    makeWrapper intltool gsl poppler
   ];
 
   configureFlags = "--with-python";
@@ -32,6 +35,7 @@ stdenv.mkDerivation rec {
        "$(toPythonPath ${pyxml}):$(toPythonPath ${lxml})" ||  \
         exit 2
     done
+    rm $out/share/icons/hicolor/icon-theme.cache
   '';
 
   NIX_LDFLAGS = "-lX11";
@@ -45,6 +49,5 @@ stdenv.mkDerivation rec {
 
       If you want to import .eps files install ps2edit.
     '';
-
   };
 }

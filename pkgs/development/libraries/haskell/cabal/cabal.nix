@@ -54,9 +54,12 @@
                 test -f $i && ghc --make $i
               done
 
-              for p in $propagatedBuildNativeInputs; do
+              for p in $extraBuildInputs $propagatedBuildNativeInputs; do
+                if [ -d "$p/include" ]; then
+                  extraLibDirs="$extraLibDirs --extra-include-dir=$p/include"
+                fi
                 for d in lib{,64}; do
-                  if [ -e "$p/$d" ]; then
+                  if [ -d "$p/$d" ]; then
                     extraLibDirs="$extraLibDirs --extra-lib-dir=$p/$d"
                   fi
                 done
@@ -99,10 +102,13 @@
                 GHC_PACKAGE_PATH=$installedPkgConf ghc-pkg --global register $pkgConf --force
               fi
 
-              ensureDir $out/nix-support
-              ln -s $out/nix-support/propagated-build-native-inputs $out/nix-support/propagated-user-env-packages
-
               eval "$postInstall"
+            '';
+
+            postFixup = ''
+              if test -f $out/nix-support/propagated-build-native-inputs; then
+                ln -s $out/nix-support/propagated-build-native-inputs $out/nix-support/propagated-user-env-packages
+              fi
             '';
 
             # We inherit stdenv and ghc so that they can be used

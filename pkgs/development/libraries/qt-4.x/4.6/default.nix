@@ -89,11 +89,13 @@ stdenv.mkDerivation rec {
 
   postInstall = if useDocs then "rm -rf $out/share/doc/${name}/{html,src}" else "";
 
+  enableParallelBuilding = true;
+
   meta = {
     homepage = http://qt.nokia.com/products;
     description = "A cross-platform application framework for C++";
     license = "GPL/LGPL";
     maintainers = with stdenv.lib.maintainers; [ sander urkud ];
-    platforms = stdenv.lib.platforms.mesaPlatforms;
+    platforms = stdenv.lib.platforms.linux;
   };
 }

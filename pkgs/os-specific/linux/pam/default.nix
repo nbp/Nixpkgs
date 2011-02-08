@@ -9,9 +9,22 @@ stdenv.mkDerivation {
   };
 
   buildInputs = [ flex cracklib ]
-    ++ stdenv.lib.optional (stdenv.system != "armv5tel-linux") libxcrypt;
+    ++ stdenv.lib.optional
+      (stdenv.system != "armv5tel-linux" && stdenv.system != "mips64-linux")
+      libxcrypt;
+
+  postInstall = ''
+    mv -v $out/sbin/unix_chkpwd{,.orig}
+    ln -sv /var/setuid-wrappers/unix_chkpwd $out/sbin/unix_chkpwd
+    '';
 
   preConfigure = ''
     configureFlags="$configureFlags --includedir=$out/include/security"
   '';
+
+  meta = {
+    homepage = http://ftp.kernel.org/pub/linux/libs/pam/;
+    description = "Pluggable Authentication Modules, a flexible mechanism for authenticating user";
+    platforms = stdenv.lib.platforms.linux;
+  };
 }

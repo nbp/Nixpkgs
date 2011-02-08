@@ -1,19 +1,22 @@
 {stdenv, fetchgit, libuuid, lzo, zlib, acl}:
 
 let
-  version = "v1.3.1";
+  version = "1.3.1";
 in
 stdenv.mkDerivation {
   name = "mtd-utils-${version}";
 
   src = fetchgit {
     url = git://git.infradead.org/mtd-utils.git;
-    rev = version;
+    rev = "v" + version;
     sha256 = "0pjjs9x03bgvphqwlw99c2cpkpjsx0vkqi79vjl7fcb9pyrghgd1";
   };
 
-  preBuild = ''
-    makeFlags="DESTDIR=$out"
+  patchPhase = ''
+    sed -i -e s,/usr/local,, -e s,/usr,$out, common.mk
+
+    # gcc 4.5.1 issues a warning where 4.4.3 did not
+    sed -i -e s/-Werror// ubi-utils/old-utils/Makefile
   '';
 
   buildInputs = [ libuuid lzo zlib acl ];

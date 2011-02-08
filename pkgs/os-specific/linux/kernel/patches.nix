@@ -90,6 +90,17 @@ in
       features.fbConDecor = true;
     };
 
+  fbcondecor_2_6_35 =
+    rec {
+      name = "fbcondecor-0.9.6-2.6.35-rc4";
+      patch = fetchurl {
+        url = "http://dev.gentoo.org/~spock/projects/fbcondecor/archive/${name}.patch";
+        sha256 = "0dlks1arr3b3hlmw9k1a1swji2x655why61sa0aahm62faibsg1r";
+      };
+      extraConfig = fbcondecorConfig;
+      features.fbConDecor = true;
+    };
+
   # From http://patchwork.kernel.org/patch/19495/
   ext4_softlockups_2_6_28 =
     { name = "ext4-softlockups-fix";
@@ -155,6 +166,15 @@ in
       features.aufsBase = true;
     };
 
+  aufs2_2_6_35 =
+    { # From http://git.c3sl.ufpr.br/gitweb?p=aufs/aufs2-standalone.git;a=tree;h=refs/heads/aufs2-35;hb=aufs2-35
+      # Note that this merely the patch needed to build AUFS2 as a
+      # standalone package.
+      name = "aufs2";
+      patch = ./aufs2-35.patch;
+      features.aufsBase = true;
+    };
+
   # Increase the timeout on CIFS requests from 15 to 120 seconds to
   # make CIFS more resilient to high load on the CIFS server.
   cifs_timeout =
@@ -166,9 +186,9 @@ in
   no_xsave =
     { name = "no-xsave";
       patch = fetchurl {
-        url = "http://cvs.fedoraproject.org/viewvc/devel/kernel/fix_xen_guest_on_old_EC2.patch?revision=1.1&view=co";
+        url = "http://kernel.ubuntu.com/git?p=rtg/ubuntu-maverick.git;a=blobdiff_plain;f=arch/x86/xen/enlighten.c;h=f7ff4c7d22954ab5eda464320241300bd5a32ee5;hp=1ea06f842a921557e958110e22941d53a2822f3c;hb=1a30f99;hpb=8f2ff69dce18ed856a8d1b93176f768b47eeed86";
         name = "no-xsave.patch";
-        sha256 = "02f51f9b636b105c81a3ed62145abdc0ecb043b8114eb10257854577f617f894";
+        sha256 = "18732s3vmav5rpg6zqpiw2i0ll83pcc4gw266h6545pmbh9p7hky";
       };
       features.noXsave = true;
     };
@@ -176,6 +196,38 @@ in
   dell_rfkill =
     { name = "dell-rfkill";
       patch = ./dell-rfkill.patch;
+    };
+
+  sheevaplug_modules_2_6_35 =
+    { name = "sheevaplug_modules-2.6.35";
+      patch = ./sheevaplug_modules-2.6.35.patch;
+    };
+
+  mips_restart_2_6_36 =
+    { name = "mips_restart_2_6_36";
+      patch = ./mips_restart.patch;
+    };
+
+  guruplug_defconfig =
+    { # Default configuration for the GuruPlug.  From
+      # <http://www.openplug.org/plugwiki/images/c/c6/Guruplug-patchset-2.6.33.2.tar.bz2>.
+      name = "guruplug-defconfig";
+      patch = ./guruplug-defconfig.patch;
+    };
+
+  guruplug_arch_number =
+    { # Hack to match the `arch_number' of the U-Boot that ships with the
+      # GuruPlug.  This is only needed when using this specific U-Boot
+      # binary.  See
+      # <http://www.plugcomputer.org/plugwiki/index.php/Compiling_Linux_Kernel_for_the_Plug_Computer>.
+      name = "guruplug-arch-number";
+      patch = ./guruplug-mach-type.patch;
+    };
+
+  xen_pvclock_resume =
+    { # Fix the clock after a DomU restore following a Dom0 reboot or migration.
+      name = "xen-pvclock-resume";
+      patch = ./xen-pvclock-resume.patch;
     };
   
 }

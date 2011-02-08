@@ -1,22 +1,19 @@
 { fetchurl, stdenv, zlib, docbook2x, pcre, curl, libxml2, libevent, perl
-, autoconf, automake, libtool }:
+, pkgconfig, protobuf, tokyocabinet, opencv }:
 
-let version = "0.2.3a"; in
+let version = "0.3.1"; in
 stdenv.mkDerivation {
   name = "seeks-${version}";
 
   src = fetchurl {
-    url = "mirror://sourceforge/seeks/solo/seeks_solo_stable-${version}.src.tar.gz";
-    sha256 = "0hjaqwcaa19qbq28y5gq0415fz10vx034aghqa01hrhhl9yrjvc4";
+    url = "mirror://sourceforge/seeks/solo/seeks-${version}.tar.gz";
+    sha256 = "0yvws1j6rh1nv230gkqz3fkf21zdx0x7w8lh3w7gjmi7hfij25gx";
   };
 
   buildInputs =
-    [ zlib docbook2x pcre curl libxml2 libevent perl
-      autoconf automake libtool
+    [ zlib docbook2x pcre curl libxml2 libevent perl pkgconfig
+      protobuf tokyocabinet opencv
     ];
-
-  # The tarball doesn't contain `configure' & co.  Sigh...
-  preConfigure = "autoreconf -vfi";
 
   configureFlags =
     [ # Enable the built-in web server providing a web search interface.
@@ -24,6 +21,9 @@ stdenv.mkDerivation {
       "--enable-httpserv-plugin=yes"
       "--with-libevent=${libevent}"
     ];
+
+  # FIXME: Test suite needs <https://code.google.com/p/googletest/>.
+  doCheck = false;
 
   meta = {
     description = "Seeks, a social web search engine";

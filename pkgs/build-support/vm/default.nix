@@ -1,4 +1,8 @@
-{ pkgs }:
+{ pkgs
+, linuxKernel ? pkgs.linux
+, img ? "bzImage"
+, rootModules ? [ "cifs" "virtio_net" "virtio_pci" "virtio_blk" "virtio_balloon" "nls_utf8" "ext2" "ext3" "unix" ]
+}:
 
 with pkgs;
 
@@ -7,16 +11,13 @@ rec {
   # The 15 second CIFS timeout is too short if the host if heavily
   # loaded (e.g., in the Hydra build farm when it's running many jobs
   # in parallel).  So apply a patch to increase the timeout to 120s.
-  kernel = assert pkgs.linux.features.cifsTimeout; pkgs.linux;
+  kernel = assert pkgs.linux.features.cifsTimeout; linuxKernel;
 
   kvm = pkgs.qemu_kvm;
 
 
   modulesClosure = makeModulesClosure {
-    inherit kernel;
-    rootModules =
-      [ "cifs" "virtio_net" "virtio_pci" "virtio_blk" "virtio_balloon"
-        "nls_utf8" "ext2" "ext3" "unix" ];
+    inherit kernel rootModules;
   };
 
 
@@ -139,7 +140,7 @@ rec {
     mount -o bind /dev /fs/dev
 
     echo "mounting host filesystem..."
-    mount -t cifs //10.0.2.4/qemu /fs/hostfs -o guest,username=nobody
+    mount -t cifs //10.0.2.4/qemu /fs/hostfs -o guest,sec=none
 
     mkdir -p /fs/nix/store
     mount -o bind /fs/hostfs/nix/store /fs/nix/store
@@ -216,9 +217,9 @@ rec {
       -nographic -no-reboot \
       -net nic,model=virtio \
       -chardev socket,id=samba,path=./samba \
-      -net user,guestfwd=tcp:10.0.2.4:139-chardev:samba \
+      -net user,guestfwd=tcp:10.0.2.4:445-chardev:samba \
       -drive file=$diskImage,if=virtio,boot=on,cache=writeback,werror=report \
-      -kernel ${kernel}/bzImage \
+      -kernel ${kernel}/${img} \
       -initrd ${initrd}/initrd \
       -append "console=ttyS0 panic=1 command=${stage2Init} tmpDir=$TMPDIR out=$out mountDisk=$mountDisk" \
       $QEMU_OPTS
@@ -227,6 +228,8 @@ rec {
 
   startSamba =
     ''
+      export WHO=`whoami`
+
       cat > $TMPDIR/smb.conf <<SMB
       [global]
         private dir = $TMPDIR
@@ -238,13 +241,14 @@ rec {
         smb passwd file = $TMPDIR/smbpasswd
         security = share
       [qemu]
+        force user = $WHO
         path = /
         read only = no
         guest ok = yes
       SMB
 
       rm -f ./samba
-      ${socat}/bin/socat unix-listen:./samba exec:"${samba}/sbin/smbd -s $TMPDIR/smb.conf",nofork > /dev/null 2>&1 &
+      ${socat}/bin/socat unix-listen:./samba exec:"${utillinux}/bin/setsid ${samba}/sbin/smbd -s $TMPDIR/smb.conf",nofork > /dev/null 2>&1 &
       while [ ! -e ./samba ]; do sleep 0.1; done # ugly
     '';
 
@@ -331,6 +335,7 @@ rec {
      that allows you to boot into the VM and debug it interactively. */
      
   runInLinuxVM = drv: lib.overrideDerivation drv (attrs: {
+    requiredSystemFeatures = [ "kvm" ];
     builder = "${bash}/bin/sh";
     args = ["-e" (vmRunCommand qemuCommandLinux)];
     origArgs = attrs.args;
@@ -338,6 +343,56 @@ rec {
     QEMU_OPTS = "-m ${toString (if attrs ? memSize then attrs.memSize else 256)}";
   });
 
+  extractFs = {file, fs ? null} :
+    with pkgs; runInLinuxVM (
+    stdenv.mkDerivation {
+      name = "extract-file";
+      buildInputs = [utillinuxng];
+      buildCommand = ''
+        ln -s ${linux}/lib /lib
+        ${module_init_tools}/sbin/modprobe loop
+        ${module_init_tools}/sbin/modprobe ext4
+        ${module_init_tools}/sbin/modprobe hfs
+        ${module_init_tools}/sbin/modprobe hfsplus
+        ${module_init_tools}/sbin/modprobe squashfs
+        ${module_init_tools}/sbin/modprobe iso9660
+        ${module_init_tools}/sbin/modprobe ufs
+        ${module_init_tools}/sbin/modprobe cramfs
+        mknod /dev/loop0 b 7 0
+
+        ensureDir $out
+        ensureDir tmp
+        mount -o loop,ro,ufstype=44bsd ${lib.optionalString (fs != null) "-t ${fs} "}${file} tmp ||
+          mount -o loop,ro ${lib.optionalString (fs != null) "-t ${fs} "}${file} tmp
+        cp -Rv tmp/* $out/ || exit 0
+      '';
+    });
+
+  extractMTDfs = {file, fs ? null} :
+    with pkgs; runInLinuxVM (
+    stdenv.mkDerivation {
+      name = "extract-file-mtd";
+      buildInputs = [utillinuxng mtdutils];
+      buildCommand = ''
+        ln -s ${linux}/lib /lib
+        ${module_init_tools}/sbin/modprobe mtd
+        ${module_init_tools}/sbin/modprobe mtdram total_size=131072
+        ${module_init_tools}/sbin/modprobe mtdchar
+        ${module_init_tools}/sbin/modprobe mtdblock
+        ${module_init_tools}/sbin/modprobe jffs2
+        ${module_init_tools}/sbin/modprobe zlib
+        mknod /dev/mtd0 c 90 0
+        mknod /dev/mtdblock0 b 31 0
+
+        ensureDir $out
+        ensureDir tmp
+
+        dd if=${file} of=/dev/mtd0
+        mount ${lib.optionalString (fs != null) "-t ${fs} "}/dev/mtdblock0 tmp
+
+        cp -R tmp/* $out/
+      '';
+    });
 
   qemuCommandGeneric = ''
     ${kvm}/bin/qemu-system-x86_64 \
@@ -366,6 +421,7 @@ rec {
   */
   runInGenericVM = drv: lib.overrideDerivation drv (attrs: {
     system = "i686-linux";
+    requiredSystemFeatures = [ "kvm" ];
     builder = "${bash}/bin/sh";
     args = ["-e" (vmRunCommand qemuCommandGeneric)];
     QEMU_OPTS = "-m ${toString (if attrs ? memSize then attrs.memSize else 256)}";
@@ -1112,7 +1168,7 @@ rec {
       fullName = "Debian 5.0.5 Lenny (i386)";
       packagesList = fetchurl {
         url = mirror://debian/dists/lenny/main/binary-i386/Packages.bz2;
-        sha256 = "cd8158a16c1d3990d35116dfe88005fe685102f591268f8588d3222a02a11339";
+        sha256 = "1nzd0r44lnvw2bmshqpbhghs84fxbcr1jkg55d37v4d09gsdmln0";
       };
       urlPrefix = mirror://debian;
       packages = commonDebianPackages;
@@ -1123,7 +1179,7 @@ rec {
       fullName = "Debian 5.0.5 Lenny (amd64)";
       packagesList = fetchurl {
         url = mirror://debian/dists/lenny/main/binary-amd64/Packages.bz2;
-        sha256 = "aceb161a534a641c205fca7eabb27d60180c0616104be49562a0997a44571c42";
+        sha256 = "04hab4ybjilppr1hwnl4k50vr5y88w7zn6v22phfrsrxf23nrlv3";
       };
       urlPrefix = mirror://debian;
       packages = commonDebianPackages;

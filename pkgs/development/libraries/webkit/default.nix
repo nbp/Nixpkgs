@@ -13,7 +13,7 @@ rec {
     gettext libjpeg libpng libtiff libxml2 libxslt pango
     sqlite icu gperf bison flex autoconf automake libtool 
     perl intltool pkgconfig libsoup gtkdoc libXt libproxy
-    enchant python ruby
+    enchant python ruby which renderproto libXrender geoclue
     ];
 
   propagatedBuildInputs = [
@@ -24,22 +24,36 @@ rec {
   configureFlags = [
     "--enable-3D-transforms"
     "--enable-web-sockets"
-    "--enable-indexeddb"
+    "--enable-web-timing"
     "--enable-image-resizer"
 
-    # https://bugs.webkit.org/show_bug.cgi?id=41859
-    # "--enable-mathml"
+    "--enable-geolocation"
 
-    # "--enable-blob-slice"
+    # Not implemented?
+    # "--enable-web-audio"
+
+    "--enable-mathml"
+
+    # https://bugs.webkit.org/show_bug.cgi?id=42943
+    # FIXED
+    "--enable-wml"
     
-    # Seem incomplete as of now
-    # "--enable-file-reader"
-    # "--enable-file-writer"
+    # https://bugs.webkit.org/show_bug.cgi?id=45110
+    # "--enable-indexed-database"
 
-    # https://bugs.webkit.org/show_bug.cgi?id=40765
-    # "--enable-wml"
+    # Related bug is marked as closed, but seems to persist
+    "--enable-xhtmlmp"
 
-    # "--enable-xhtmlmp"
+    # "--enable-input-speech"
+
+    # https://bugs.webkit.org/show_bug.cgi?id=43878
+    # Related bug FIXED
+    "--enable-file-writer"
+    # "--enable-blob"
+
+    # May be or not be triggering  https://bugs.webkit.org/show_bug.cgi?id=43878
+    # "--enable-file-system"
+    "--enable-directory-upload"
     ];
 
   /* doConfigure should be specified separately */

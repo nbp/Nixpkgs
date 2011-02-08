@@ -1,9 +1,42 @@
-{stdenv, fetchurl}:
+{ stdenv, fetchurl
+, ejabberd ? null, mysql ? null, postgresql ? null, subversion ? null
+, enableApacheWebApplication ? false
+, enableAxis2WebService ? false
+, enableEjabberdDump ? false
+, enableMySQLDatabase ? false
+, enablePostgreSQLDatabase ? false
+, enableSubversionRepository ? false
+, enableTomcatWebApplication ? false
+, catalinaBaseDir ? "/var/tomcat"
+}:
+
+assert enableMySQLDatabase -> mysql != null;
+assert enablePostgreSQLDatabase -> postgresql != null;
+assert enableSubversionRepository -> subversion != null;
+assert enableEjabberdDump -> ejabberd != null;
 
 stdenv.mkDerivation {
-  name = "disnix-activation-scripts-test";
+  name = "disnix-activation-scripts-0.2pre25619";
   src = fetchurl {
-    url = http://hydra.nixos.org/build/333630/download/1/disnix-activation-scripts-nixos-0.1.tar.gz;
-    sha256 = "0izkkdw9r2gff03mq973ah5b9b0a4b07l8ac0406yv8ss9vaaclm";
+    url = http://hydra.nixos.org/build/860730/download/1/disnix-activation-scripts-0.2pre25619.tar.gz;
+    sha256 = "0lfix5mh0hcdb6jwz6pi92zi4k0xnvdksw17q8bj7x7vqpscq5s6";
   };
+  
+  preConfigure = if enableEjabberdDump then "export PATH=$PATH:${ejabberd}/sbin" else "";
+  
+  configureFlags = ''
+                     ${if enableApacheWebApplication then "--with-apache" else "--without-apache"}
+		     ${if enableAxis2WebService then "--with-axis2" else "--without-axis2"}
+		     ${if enableEjabberdDump then "--with-ejabberd" else "--without-ejabberd"}
+		     ${if enableMySQLDatabase then "--with-mysql" else "--without-mysql"}
+		     ${if enablePostgreSQLDatabase then "--with-postgresql" else "--without-postgresql"}
+		     ${if enableSubversionRepository then "--with-subversion" else "--without-subversion"}
+		     ${if enableTomcatWebApplication then "--with-tomcat=${catalinaBaseDir}" else "--without-tomcat"}
+		   '';
+		   
+  buildInputs = []
+                ++ stdenv.lib.optional enableEjabberdDump ejabberd
+                ++ stdenv.lib.optional enableMySQLDatabase mysql
+		++ stdenv.lib.optional enablePostgreSQLDatabase postgresql
+		++ stdenv.lib.optional enableSubversionRepository subversion;
 }

@@ -7,18 +7,24 @@
  else stdenv.mkDerivation)
 
 rec {
-  name = "guile-1.9.11";  # This is a beta release!
+  name = "guile-1.9.15";  # This is a beta release!
 
   src = fetchurl {
     url = "ftp://alpha.gnu.org/gnu/guile/${name}.tar.gz";
-    sha256 = "13wff9944brzhi2afs4pzwndqcwhi4gg61qwahycr1d72v0wzmjp";
+    sha256 = "0b6sd2a9s2ccdcr84d16ryk08sqqxgcw8bxisdz9z5b53dvpmh0p";
   };
 
   buildInputs =
     [ makeWrapper gawk readline libtool libunistring
       libffi pkgconfig
     ];
-  propagatedBuildInputs = [ gmp boehmgc ];
+  propagatedBuildInputs = [ gmp boehmgc ]
+
+    # XXX: These ones aren't normally needed here, but since
+    # `libguile-2.0.la' reads `-lltdl -lunistring', adding them here will add
+    # the needed `-L' flags.  As for why the `.la' file lacks the `-L' flags,
+    # see below.
+    ++ [ libtool libunistring ];
 
   patches =
     stdenv.lib.optionals (coverageAnalysis != null)
@@ -41,7 +47,7 @@ rec {
   setupHook = ./setup-hook.sh;
 
   meta = {
-    description = "GNU Guile 1.9 (alpha), an embeddable Scheme implementation";
+    description = "GNU Guile 1.9 (beta), an embeddable Scheme implementation";
 
     longDescription = ''
       GNU Guile is an implementation of the Scheme programming language, with

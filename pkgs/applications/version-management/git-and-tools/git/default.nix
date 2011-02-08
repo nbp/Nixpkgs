@@ -1,4 +1,4 @@
-{ fetchurl, stdenv, curl, openssl, zlib, expat, perl, python, gettext, cpio
+{ fetchurl, stdenv, curl, openssl, zlib, expat, perl, python, gettext, cpio, gnugrep
 , asciidoc, texinfo, xmlto, docbook2x, docbook_xsl, docbook_xml_dtd_45
 , libxslt, tcl, tk, makeWrapper
 , svnSupport, subversion, perlLibs, smtpPerlLibs
@@ -12,11 +12,11 @@ let
 in
 
 stdenv.mkDerivation rec {
-  name = "git-1.7.1";
+  name = "git-1.7.4";
 
   src = fetchurl {
     url = "mirror://kernel/software/scm/git/${name}.tar.bz2";
-    sha256 = "bcf008ec9639480a3ebfdc4708743b6c0978a8bd3103a2dda587ea9473b9dde2";
+    sha256 = "0lggpkna2icrfwh2iysb4pgx3d5b5l64bnz34rgs6ipvbng0n9lf";
   };
 
   patches = [ ./docbook2texi.patch ];
@@ -45,6 +45,11 @@ stdenv.mkDerivation rec {
       echo "installing Emacs mode..."
       ensureDir $out/share/emacs/site-lisp
       cp -p contrib/emacs/*.el $out/share/emacs/site-lisp
+
+      # grep is a runtime dependence, need to patch so that it's found
+      substituteInPlace $out/libexec/git-core/git-sh-setup \
+          --replace ' grep' ' ${gnugrep}/bin/grep' \
+          --replace ' egrep' ' ${gnugrep}/bin/egrep'
     '' # */
 
    + (if svnSupport then
@@ -74,21 +79,19 @@ stdenv.mkDerivation rec {
        '')
 
    + ''# Install man pages and Info manual
-       make PERL_PATH="${perl}/bin/perl" cmd-list.made install install-info \
+       make -j $NIX_BUILD_CORES -l $NIX_BUILD_CORES PERL_PATH="${perl}/bin/perl" cmd-list.made install install-info \
          -C Documentation ''
 
    + (if guiSupport then ''
        # Wrap Tcl/Tk programs
-       for prog in bin/gitk libexec/git-core/git-gui
-       do
-         wrapProgram "$out/$prog"                       \
-                     --set TK_LIBRARY "${tk}/lib/${tk.libPrefix}" \
-                     --prefix PATH : "${tk}/bin"
+       for prog in bin/gitk libexec/git-core/{git-gui,git-citool,git-gui--askpass}; do
+         sed -i -e "s|exec 'wish'|exec '${tk}/bin/wish'|g" \
+                -e "s|exec wish|exec '${tk}/bin/wish'|g" \
+		"$out/$prog"
        done
      '' else ''
-      # Don't wrap Tcl/Tk, replace them by notification scripts
-       for prog in bin/gitk libexec/git-core/git-gui
-       do
+       # Don't wrap Tcl/Tk, replace them by notification scripts
+       for prog in bin/gitk libexec/git-core/git-gui; do
          notSupported "$out/$prog" \
                       "reinstall with config git = { guiSupport = true; } set"
        done
@@ -102,19 +105,22 @@ stdenv.mkDerivation rec {
    # multiple times into $out so replace duplicates by symlinks because I
    # haven't tested whether the nix distribution system can handle hardlinks.
    # This reduces the size of $out from 115MB down to 13MB on x86_64-linux!
-   + ''#
+   + ''
       declare -A seen
-      find $out -type f | while read f; do
+      shopt -s globstar
+      for f in "$out/"**; do
+        test -f "$f" || continue
         sum=$(md5sum "$f");
         sum=''\${sum/ */}
         if [ -z "''\${seen["$sum"]}" ]; then
           seen["$sum"]="$f"
         else
-          rm "$f"; ln -s "''\${seen["$sum"]}" "$f"
+          rm "$f"; ln -v -s "''\${seen["$sum"]}" "$f"
         fi
       done
-
      '';
+
+  enableParallelBuilding = true;
 
   meta = {
     license = "GPLv2";

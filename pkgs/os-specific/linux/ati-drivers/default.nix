@@ -19,8 +19,9 @@ let lib = stdenv.lib;
 in
 # http://wiki.cchtml.com/index.php/Main_Page
 
-stdenv.mkDerivation {
-  name = "ati-drivers";
+stdenv.mkDerivation rec {
+  name = "ati-drivers-${version}";
+  version = "10-11-x86";
 
   builder = ./builder.sh;
 
@@ -29,8 +30,8 @@ stdenv.mkDerivation {
   src =
     assert stdenv.system == "x86_64-linux";
   fetchurl {
-    url = https://a248.e.akamai.net/f/674/9206/0/www2.ati.com/drivers/linux/ati-driver-installer-10-4-x86.x86_64.run;
-    sha256 = "1rlqbfv729lray1c72ga4528kj7v4a5nmdznbgx7izwaxip2a45z";
+    url = https://a248.e.akamai.net/f/674/9206/0/www2.ati.com/drivers/linux/ati-driver-installer-10-11-x86.x86_64.run;
+    sha256 = "1z33w831ayx1j5lm9d1xv6whkmzsz9v8li3s8c96hwnwki6zpimr";
   };
 
   buildInputs = [xlibs.libXext xlibs.libX11
@@ -59,7 +60,7 @@ stdenv.mkDerivation {
   # moved assertions here because the name is evaluated when the NixOS manual is generated
   # Don't make that fail - fail lazily when a users tries to build this derivation only
   dummy =
-    assert xorg.xorgserver.name == "xorg-server-1.7.5";
+    # assert xorg.xorgserver.name == "xorg-server-1.7.5";
     assert stdenv.system == "x86_64-linux"; # i686-linux should work as well - however I didn't test it.
     null;
 

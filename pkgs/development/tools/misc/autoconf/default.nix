@@ -1,11 +1,11 @@
 { stdenv, fetchurl, m4, perl }:
 
 stdenv.mkDerivation rec {
-  name = "autoconf-2.65";
+  name = "autoconf-2.68";
 
   src = fetchurl {
     url = "mirror://gnu/autoconf/${name}.tar.bz2";
-    sha256 = "0sqkh2xirg3yq7774aqmbi2nbx8rv3yf6v2xzwlz5ypkax0984fv";
+    sha256 = "1j1j8d2p3r9mzx8b2hnmfqy2683r2wyyvki6bs9cmm6n7wkzp4f4";
   };
 
   buildInputs = [ m4 perl ];
@@ -13,7 +13,9 @@ stdenv.mkDerivation rec {
   # Work around a known issue in Cygwin.  See
   # http://thread.gmane.org/gmane.comp.sysutils.autoconf.bugs/6822 for
   # details.
-  doCheck = (stdenv.system != "i686-cygwin");
+  # There are many test failures on `i386-pc-solaris2.11'.
+  doCheck = (stdenv.system != "i686-cygwin"
+             && stdenv.system != "i386-sunos");
 
   # Don't fixup "#! /bin/sh" in Autoconf, otherwise it will use the
   # "fixed" path in generated files!

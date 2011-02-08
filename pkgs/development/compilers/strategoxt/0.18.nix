@@ -41,11 +41,11 @@ rec {
 
   
   strategoxt = stdenv.mkDerivation rec {
-    name = "strategoxt-0.18pre20635";
+    name = "strategoxt-0.18pre21134";
 
     src = fetchurl {
-      url = http://hydra.nixos.org/build/301917/download/1/strategoxt-0.18pre20635.tar.gz;
-      sha256 = "963bf8e6ab2c46e98ee81311de723e7ee7573568d1c78d7b66e047d8d8d283b9";
+      url = http://hydra.nixos.org/build/665485/download/1/strategoxt-1.8pre21134.tar.gz;
+      sha256 = "105ce9a424551cf007e354eac181aafb352713e79cf1735a73564984c3635e53";
     };
 
     buildInputs = [pkgconfig aterm sdf getopt];
@@ -73,11 +73,11 @@ rec {
   };
 
   javafront = stdenv.mkDerivation (rec {
-    name = "java-front-0.9";
+    name = "java-front-0.9.1";
 
     src = fetchurl {
-      url = "http://hydra.nixos.org/build/79602/download/1/java-front-0.9.1pre19993.tar.gz";
-      sha256 = "e07e7d9ecc4a57c24d7af309d576d6eda75cb07a9d3d06594edfded366863c9c";
+      url = "http://hydra.nixos.org/build/766286/download/1/java-front-0.9.1pre20122.tar.gz";
+      sha256 = "ef85d3af962fcd54e028ea501e64220b86af335a49143f2819bd3f4789bef7e6";
     };
 
     buildInputs = [pkgconfig aterm sdf strategoxt];

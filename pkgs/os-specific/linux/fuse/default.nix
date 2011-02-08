@@ -1,13 +1,13 @@
 { stdenv, fetchurl, utillinux }:
 
 stdenv.mkDerivation rec {
-  name = "fuse-2.8.3";
+  name = "fuse-2.8.5";
   
   builder = ./builder.sh;
   
   src = fetchurl {
     url = "mirror://sourceforge/fuse/${name}.tar.gz";
-    sha256 = "5edf7f73676976126893c528578c1bf0a264cc34ca8bad7e341e0664157ff2b9";
+    sha256 = "114ssa7a7spwmkrn8362dgzdqiba4s8s4b3vyvyhvrlfmrk0xj5y";
   };
   
   configureFlags = "--disable-kernel-module";

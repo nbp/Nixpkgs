@@ -1,6 +1,6 @@
 { system, name, preHook ? null, postHook ? null, initialPath, gcc, shell
 , param1 ? "", param2 ? "", param3 ? "", param4 ? "", param5 ? ""
-, extraAttrs ? {}
+, extraAttrs ? {}, overrides ? {}
 
 , # The `fetchurl' to use for downloading curl and its dependencies
   # (see all-packages.nix).
@@ -39,7 +39,7 @@ let
         meta = {
           description = "The default build environment for Unix packages in Nixpkgs";
         };
-    
+
         # Add a utility function to produce derivations that use this
         # stdenv and its shell.
         mkDerivation = attrs:
@@ -90,11 +90,24 @@ let
           (if attrs ? passthru then attrs.passthru else {});
 
         # Utility flags to test the type of platform.
-        isDarwin = result.system == "i686-darwin" || result.system == "powerpc-darwin" || result.system == "x86_64-darwin";
+        isDarwin = result.system == "i686-darwin"
+	       || result.system == "powerpc-darwin"
+	       || result.system == "x86_64-darwin";
         isLinux = result.system == "i686-linux"
                || result.system == "x86_64-linux"
                || result.system == "powerpc-linux"
-               || result.system == "armv5tel-linux";
+               || result.system == "armv5tel-linux"
+               || result.system == "mips64-linux";
+        isSunOS = result.system == "i386-sunos";
+        isCygwin = result.system == "i686-cygwin";
+	isFreeBSD = result.system == "i686-freebsd"
+	       || result.system == "x86_64-freebsd";
+	isOpenBSD = result.system == "i686-openbsd"
+	       || result.system == "x86_64-openbsd";
+	isBSD = result.system == "i686-freebsd"
+	       || result.system == "x86_64-freebsd"
+	       || result.system == "i686-openbsd"
+	       || result.system == "x86_64-openbsd";
         isi686 = result.system == "i686-linux"
                || result.system == "i686-darwin"
                || result.system == "i686-freebsd"
@@ -106,6 +119,9 @@ let
                || result.system == "x86_64-openbsd";
         is64bit = result.system == "x86_64-linux"
                 || result.system == "x86_64-darwin";
+        isMips = result.system == "mips-linux"
+                || result.system == "mips64-linux";
+        isArm = result.system == "armv5tel-linux";
 
         # Utility function: allow stdenv to be easily regenerated with
         # a different setup script.  (See all-packages.nix for an
@@ -118,6 +134,7 @@ let
 
         inherit fetchurlBoot;
 
+        inherit overrides;
       }
 
       # Propagate any extra attributes.  For instance, we use this to
@@ -128,5 +145,5 @@ let
 
   }.result;
 
-  
+
 in stdenvGenerator ./setup.sh

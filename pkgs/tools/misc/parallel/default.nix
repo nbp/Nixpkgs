@@ -1,15 +1,20 @@
 { fetchurl, stdenv, perl }:
 
 stdenv.mkDerivation rec {
-  name = "parallel-20100620";
+  name = "parallel-20110125";
 
   src = fetchurl {
     url = "mirror://gnu/parallel/${name}.tar.bz2";
-    sha256 = "1hzdzvkm5cqciy6lhcbdzi4aar09fgsf0lfb4a89mnlq4xdmr8jj";
+    sha256 = "0a5zah3s2h2jagmshz9w40whilh43cgzdpcw26isalq4282acajg";
   };
 
   patchPhase =
     '' sed -i "src/parallel" -e's|/usr/bin/perl|${perl}/bin/perl|g'
+    '';
+
+  preBuild =
+    # The `sem' program wants to write to `~/.parallel'.
+    '' export HOME="$PWD"
     '';
 
   buildInputs = [ perl ];

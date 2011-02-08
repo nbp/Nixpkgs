@@ -47,6 +47,7 @@ in
 
 stdenv.mkDerivation ( {
   name = "python-${version}";
+  inherit majorVersion version;
 
   src = fetchurl {
     url = "http://www.python.org/ftp/python/${version}/Python-${version}.tar.bz2";
@@ -87,6 +88,8 @@ stdenv.mkDerivation ( {
     tkSupport = (tk != null) && (tcl != null);
     libPrefix = "python${majorVersion}";
   };
+
+  enableParallelBuilding = true;
 
   meta = {
     platforms = stdenv.lib.platforms.all;

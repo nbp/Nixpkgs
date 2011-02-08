@@ -7,11 +7,11 @@ let
 in
 
 stdenv.mkDerivation rec {
-  name = "openssl-1.0.0a";
+  name = "openssl-1.0.0c";
 
   src = fetchurl {
     url = "http://www.openssl.org/source/${name}.tar.gz";
-    sha256 = "0qqgyzfb0alwx329z8bqybzamfl9j2maykykvq6zk3ibq0gvva8q";
+    sha256 = "1sq4sswyjxnr08lyjcafwdha6j5jd2b48vxfg48kdapdwdnv6cgp";
   };
 
   patches = stdenv.lib.optional stdenv.isDarwin ./darwin-arch.patch;
@@ -27,14 +27,19 @@ stdenv.mkDerivation rec {
 
   crossAttrs = {
     preConfigure=''
-      export cross=$crossSystem-
+      # It's configure does not like --build or --host
+      export configureFlags="--libdir=lib --cross-compile-prefix=${stdenv.cross.config}- shared ${opensslCrossSystem}"
     '';
-    configureFlags="--libdir=lib ${opensslCrossSystem} shared";
-    buildPhase = ''
-      make CC=$crossConfig-gcc \
-        AR="$crossConfig-ar r" \
-        RANLIB=$crossConfig-ranlib
+
+    postInstall = ''
+      # Openssl installs readonly files, which otherwise we can't strip.
+      # This could at some stdenv hash change be put out of crossAttrs, too
+      chmod -R +w $out
+
+      # Remove references to perl, to avoid depending on it at runtime
+      rm $out/bin/c_rehash $out/ssl/misc/CA.pl $out/ssl/misc/tsget
     '';
+    configureScript = "./Configure";
   };
 
   meta = {

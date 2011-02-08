@@ -1,4 +1,4 @@
-args: with args;
+{ stdenv, fetchurl, x11, ncurses }:
 
 stdenv.mkDerivation (rec {
   
@@ -17,6 +17,10 @@ stdenv.mkDerivation (rec {
   patchPhase = ''
     CAT=$(type -tp cat)
     sed -e "s@/bin/cat@$CAT@" -i config/auto-aux/sharpbang
+  '';
+  postBuild = ''
+    ensureDir $out/include
+    ln -sv $out/lib/ocaml/caml $out/include/caml
   '';
 
   meta = {

@@ -3,11 +3,11 @@
 # Note: zlib is not required; MySQL can use an internal zlib.
 
 stdenv.mkDerivation {
-  name = "mysql-5.1.41";
+  name = "mysql-5.1.54";
 
   src = fetchurl {
-    url = ftp://mirror.leaseweb.com/mysql/Downloads/MySQL-5.1/mysql-5.1.41.tar.gz;
-    sha256 = "05mwinpq35iaglylw5n772vv2p1kxyni6f2hv081gxm58gdj3dsw";
+    url = ftp://mirror.leaseweb.com/mysql/Downloads/MySQL-5.1/mysql-5.1.54.tar.gz;
+    sha256 = "07xbnwk7h1xya8s6dw34nrv7ampzag8l0l1szd2pc9zyqkzhydw4";
   };
 
   buildInputs = [ps ncurses zlib perl openssl];

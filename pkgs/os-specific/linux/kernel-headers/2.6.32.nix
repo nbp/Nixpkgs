@@ -3,7 +3,7 @@
 assert cross == null -> stdenv.isLinux;
 
 let
-  version = "2.6.32.9";
+  version = "2.6.32.16";
   kernelHeadersBaseConfig = if (cross == null) then
       stdenv.platform.kernelHeadersBaseConfig
     else
@@ -15,7 +15,7 @@ stdenv.mkDerivation {
 
   src = fetchurl {
     url = "mirror://kernel/linux/kernel/v2.6/linux-${version}.tar.bz2";
-    sha256 = "1g6hs7j5kmifb3phbnckdmrnxd0cpqrijnnbry86z26npsh9my7l";
+    sha256 = "1ndvqvfaxachsklzzr5db1bzvfhnzz8diddrm1zlv7171fzmn13j";
   };
 
   targetConfig = if (cross != null) then cross.config else null;
@@ -26,6 +26,7 @@ stdenv.mkDerivation {
     if stdenv.system == "x86_64-linux" then "x86_64" else
     if stdenv.system == "powerpc-linux" then "powerpc" else
     if stdenv.system == "armv5tel-linux" then "arm" else
+    if stdenv.platform ? kernelArch then stdenv.platform.kernelArch else
     abort "don't know what the kernel include directory is called for this platform";
 
   buildInputs = [perl];

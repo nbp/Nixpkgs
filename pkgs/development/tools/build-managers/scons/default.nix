@@ -1,21 +1,32 @@
 {stdenv, fetchurl, python, makeWrapper}:
 
-stdenv.mkDerivation rec {
-  version = "1.3.0";
-  name = "scons-" + version;
+let
+  name = "scons";
+  version = "2.0.1";
+in
+
+stdenv.mkDerivation {
+  name = "${name}-${version}";
 
   src = fetchurl {
-    url = "mirror://sourceforge/scons/${name}.tar.gz";
-    sha256 = "4bde47b9a40fe767f089f5996d56b6e85a2d4929309b9c07a2dff363a78b0002";
+    url = "mirror://sourceforge/scons/${name}-${version}.tar.gz";
+    sha256 = "0qk74nrnm9qlijrq6gmy8cyhjgp0gis4zx44divnr8n487d5308a";
   };
 
-  propagatedBuildInputs = [python makeWrapper];
-  buildPhase = "python setup.py install --prefix=$out --install-lib=$(toPythonPath $out) --hardlink-scons -O1";
-  installPhase = "for n in $out/bin/*; do wrapProgram $n --suffix PYTHONPATH ':' \"$(toPythonPath $out)\"; done";
+  buildInputs = [python makeWrapper];
+
+  preConfigure = ''
+    for i in "script/"*; do
+     substituteInPlace $i --replace "/usr/bin/env python" "${python}/bin/python"
+    done
+  '';
+  buildPhase = "python setup.py install --prefix=$out --install-data=$out/share --install-lib=$(toPythonPath $out) --symlink-scons -O1";
+  installPhase = "for n in $out/bin/*-${version}; do wrapProgram $n --suffix PYTHONPATH ':' \"$(toPythonPath $out)\"; done";
 
   meta = {
     homepage = "http://scons.org/";
     description = "An improved, cross-platform substitute for Make";
+    license = "MIT";
     longDescription =
     '' SCons is an Open Source software construction tool. Think of
        SCons as an improved, cross-platform substitute for the classic

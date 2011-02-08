@@ -19,6 +19,9 @@ preConfigure() {
             --replace "@PWD@" "pwd"
     done
 
+    # Fix shell code that tries to determine whether GNU ld is recent enough.
+    substituteInPlace configure --replace '2.1[3-9]*)' '2.1[3-9]*|2.[2-9][0-9]*)'
+
     mkdir ../build
     cd ../build
 
@@ -38,7 +41,7 @@ postConfigure() {
 
 postInstall() {
     if test -n "$installLocales"; then
-        make localedata/install-locales
+        make -j${NIX_BUILD_CORES:-1} -l${NIX_BUILD_CORES:-1} localedata/install-locales
     fi
     rm $out/etc/ld.so.cache
     (cd $out/include && ln -s $kernelHeaders/include/* .) || exit 1

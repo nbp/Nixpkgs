@@ -1,27 +1,33 @@
-{stdenv, fetchurl, boost, zlib, botan, libidn,
-  lua, pcre, sqlite, perl, lib}:
+{ stdenv, fetchurl, boost, zlib, botan, libidn
+, lua, pcre, sqlite, perl, pkgconfig }:
 
 let 
-  version = "0.48";
-in stdenv.mkDerivation rec {
+  version = "0.99.1";
+  perlVersion = (builtins.parseDrvName perl.name).version;
+in
+
+assert perlVersion != "";
+
+stdenv.mkDerivation rec {
   name = "monotone-${version}";
-  inherit perl;
+  
   src = fetchurl {
     url = "http://monotone.ca/downloads/${version}/monotone-${version}.tar.gz";
-    sha256 = "3149abf0e4433a0e14c5da805a04dbbc45b16086bc267d473b17e933407d839d";
+    sha256 = "189h5f6gqd4ng0qmzi3xwnj17nnpxm2vzras216ar6b5yc9bnki0";
   };
-  buildInputs = [boost zlib botan libidn lua pcre sqlite];
-  preConfigure = ''
-    export sqlite_LIBS=-lsqlite3
-    export NIX_LDFLAGS="$NIX_LDFLAGS -ldl"
-  '';
+  
+  buildInputs = [boost zlib botan libidn lua pcre sqlite pkgconfig];
+  
   postInstall = ''
     ensureDir $out/share/${name}
-    cp -r contrib/ $out/share/${name}/contrib
-    ensureDir $out/lib/perl5/site_perl/''${perl##*-perl-}
-    cp contrib/Monotone.pm $out/lib/perl5/site_perl/''${perl##*-perl-}
+    cp -rv contrib/ $out/share/${name}/contrib
+    ensureDir $out/lib/perl5/site_perl/${perlVersion}
+    cp -v contrib/Monotone.pm $out/lib/perl5/site_perl/${perlVersion}
   '';
+  
   meta = {
-    maintainers = [lib.maintainers.raskin];
+    description = "A free distributed version control system";
+    maintainers = [stdenv.lib.maintainers.raskin];
+    platforms = stdenv.lib.platforms.all;
   };
 }

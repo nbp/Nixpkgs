@@ -15,6 +15,7 @@
 , gtk 
 , glib
 , pango
+, cairo
 , atk
 , debug ? false
 
@@ -39,21 +40,21 @@ let
         # http://labs.adobe.com/technologies/flashplayer10/faq.html
         throw "no x86_64 debugging version available"
       else {
-        # -> http://labs.adobe.com/downloads/flashplayer10_64bit.html
-        version = "10.0.45.2";
-        url = http://download.macromedia.com/pub/labs/flashplayer10/libflashplayer-10.0.45.2.linux-x86_64.so.tar.gz;
-        sha256 = "1mkl02cplcl9dygmgzzwic0r7kkdgfkmpfzvk76l665pgf5bbazf";
+        # -> http://labs.adobe.com/downloads/flashplayer10.html
+        version = "10.1_p2-r092710";
+        url = http://download.macromedia.com/pub/labs/flashplayer10/flashplayer_square_p2_64bit_linux_092710.tar.gz;
+        sha256 = "188dn08n3rb6w3hzq4snqvip5njxdyc8k8arp8xnlqw331lfvapx";
       }
     else if stdenv.system == "i686-linux" then
       if debug then {
         # The debug version also contains a player
-        version = "10.1pre2-debug-121709";
-        url = http://download.macromedia.com/pub/labs/flashplayer10/flashplayer10_1_p2_debug_linux_121709.tar.gz;
-        sha256 = "162cnzn8sfdvr8mwyggsxi2bcl7zzi1nrl61bw481hhhpwnrjdx4";
+        version = "10.2_p2-debug-r092710";
+        url = http://download.macromedia.com/pub/labs/flashplayer10/flashplayer_square_p2_32bit_debug_linux_092710.tar.gz;
+        sha256 = "11w3mxa39l4mnlsqzlwbdh1sald549afyqbx2kbid7in5qzamlcc";
       } else {
-        version = "10.1.53.64";
+        version = "10.1.102.64";
         url = http://fpdownload.macromedia.com/get/flashplayer/current/install_flash_player_10_linux.tar.gz;
-        sha256 = "1598vn4dd96cp1nv225vvjpna70ydkd8lcyfm88gnpzkwx2scz1b";
+        sha256 = "1jfk9va3id0m6q6csg6gfycmryvi7kylbb7dswpsh6zh1zv00s62";
       }
     else throw "flashplayer is not supported on this platform";
 
@@ -74,7 +75,7 @@ stdenv.mkDerivation {
 
   rpath = stdenv.lib.makeLibraryPath
     [ zlib alsaLib curl nss nspr fontconfig freetype expat libX11
-      libXext libXrender libXt gtk glib pango atk
+      libXext libXrender libXt gtk glib pango atk cairo
     ];
 
   buildPhase = ":";

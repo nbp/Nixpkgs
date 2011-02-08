@@ -19,8 +19,6 @@ rec {
   else 
     (y x);
   defaultMerge = x: y: x // (defaultMergeArg x y);
-  sumTwoArgs = f: x: y: 
-    f (defaultMerge x y);
   foldArgs = merger: f: init: x: 
     let arg=(merger init (defaultMergeArg init x));
       # now add the function with composed args already applied to the final attrs
@@ -217,11 +215,15 @@ rec {
 
 
   innerClosePropagation = ready: list: if list == [] then ready else
-    innerClosePropagation 
-      (ready ++ [(head list)])
-      ((tail list) 
-         ++ (maybeAttrNullable "propagatedBuildInputs" [] (head list))
-         ++ (maybeAttrNullable "propagatedBuildNativeInputs" [] (head list)));
+    if ! isAttrs (head list) then
+      builtins.trace ("not an attrSet: ${lib.showVal (head list)}") 
+        innerClosePropagation ready (tail list)
+    else
+      innerClosePropagation 
+        (ready ++ [(head list)])
+        ((tail list) 
+           ++ (maybeAttrNullable "propagatedBuildInputs" [] (head list))
+           ++ (maybeAttrNullable "propagatedBuildNativeInputs" [] (head list)));
 
   closePropagation = list: (uniqList {inputList = (innerClosePropagation [] list);});
 
@@ -394,4 +396,16 @@ rec {
           (eqListStrict (attrNames a) (attrNames b))
           && (eqListStrict (lib.attrValues a) (lib.attrValues b))
         else a == b; # FIXME !
+
+
+  # Check absence of non-used options
+  # Obsolete?
+  checker = x: flag: opts: config:
+    (if flag then let result=(
+      (import ../build-support/checker)
+      opts config); in
+      (if (result=="") then x else
+      abort ("Unknown option specified: " + result))
+    else x);
+
 }
