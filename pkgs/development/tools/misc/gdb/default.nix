@@ -34,7 +34,7 @@ stdenv.mkDerivation rec {
     if bleedingEdgeVersion
     then fetchgit {
         url = "git://sourceware.org/git/gdb.git";
-        rev = "refs/tags/gdb_7_3-2011-07-26-release";
+        rev = "refs/tags/gdb_7_3_1-2011-09-04-release";
       }
     else fetchurl {
         url = "mirror://gnu/gdb/${basename}.tar.bz2";
