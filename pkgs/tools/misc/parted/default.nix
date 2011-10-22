@@ -24,7 +24,7 @@ stdenv.mkDerivation rec {
     ++ stdenv.lib.optional (devicemapper == null) "--disable-device-mapper"
     ++ stdenv.lib.optional enableStatic "--enable-static";
 
-  doCheck = true;
+  doCheck = false;
 
   preCheck =
     stdenv.lib.optionalString doCheck
