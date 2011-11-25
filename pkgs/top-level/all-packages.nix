@@ -7959,6 +7959,8 @@ let
     zlib = zlibStatic;
   };
 
+  opentyrian = callPackage ../games/opentyrian { };
+
   pioneers = callPackage ../games/pioneers { };
 
   pong3d = callPackage ../games/pong3d { };
