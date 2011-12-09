@@ -8,6 +8,12 @@ stdenv.mkDerivation rec {
     sha256 = "0hbdkzmchq9ycr2x1pxqdcgdbaxksh8c6ac0jf75jajhcks6jlss";
   };
 
+  # May have some issues with root compilation because the bootstrap tool
+  # cannot be used as a login shell for now.
+  FORCE_UNSAFE_CONFIGURE =
+    if stdenv.system == "armv7l-linux" then 1
+    else 0;
+
   meta = {
     homepage = http://www.gnu.org/software/tar/;
     description = "GNU implementation of the `tar' archiver";
