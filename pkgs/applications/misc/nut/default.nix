@@ -1,4 +1,4 @@
-{stdenv, fetchurl, pkgconfig, neon, libusb, hal, openssl, udev}:
+{stdenv, fetchurl, pkgconfig, neon, libusb, openssl, udev}:
 
 stdenv.mkDerivation {
   name = "nut-2.6.1";
@@ -14,6 +14,7 @@ stdenv.mkDerivation {
     "--without-snmp" # Until we have it ...
     "--without-powerman" # Until we have it ...
     "--without-cgi"
+    "--without-hal" # Deprecated.
   ];
 
   meta = {
