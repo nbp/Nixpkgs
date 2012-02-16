@@ -121,7 +121,8 @@ let
                 || result.system == "x86_64-darwin";
         isMips = result.system == "mips-linux"
                 || result.system == "mips64-linux";
-        isArm = result.system == "armv5tel-linux";
+        isArm = result.system == "armv5tel-linux"
+             || result.system == "armv7l-linux";
 
         # Utility function: allow stdenv to be easily regenerated with
         # a different setup script.  (See all-packages.nix for an
