@@ -1,18 +1,12 @@
 { stdenv, fetchurl }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (rec {
   name = "gnutar-1.26";
 
   src = fetchurl {
     url = "mirror://gnu/tar/tar-1.26.tar.bz2";
     sha256 = "0hbdkzmchq9ycr2x1pxqdcgdbaxksh8c6ac0jf75jajhcks6jlss";
   };
-
-  # May have some issues with root compilation because the bootstrap tool
-  # cannot be used as a login shell for now.
-  FORCE_UNSAFE_CONFIGURE =
-    if stdenv.system == "armv7l-linux" then 1
-    else 0;
 
   meta = {
     homepage = http://www.gnu.org/software/tar/;
@@ -39,3 +33,10 @@ stdenv.mkDerivation rec {
     platforms = stdenv.lib.platforms.all;
   };
 }
+  # May have some issues with root compilation because the bootstrap tool
+  # cannot be used as a login shell for now.
+// stdenv.lib.optionalAttrs (stdenv.system == "armv7l-linux") {
+  FORCE_UNSAFE_CONFIGURE = 1;
+}
+
+)
