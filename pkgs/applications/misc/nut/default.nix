@@ -1,20 +1,24 @@
-{stdenv, fetchurl, pkgconfig, neon, libusb, openssl, udev}:
+{stdenv, fetchurl, pkgconfig, neon, libusb, openssl, udev, tcp_wrappers, freeipmi, avahi}:
 
 stdenv.mkDerivation {
-  name = "nut-2.6.1";
+  name = "nut-2.6.3";
   src = fetchurl {
-    url = http://www.networkupstools.org/source/2.6/nut-2.6.1.tar.gz;
-    sha256 = "f5c46b856c0cf5b7f0e4b22d82b670af64cc98717a90eaac8723dd402a181c00";
+    url = http://www.networkupstools.org/source/2.6/nut-2.6.3.tar.gz;
+    sha256 = "34913b729d2032faaf6f31e800a400bcd874f1f4daacae6fe0d388bd235b633a";
   };
 
-  buildInputs = [pkgconfig neon libusb hal openssl udev];
+  buildInputs = [pkgconfig neon libusb openssl udev tcp_wrappers freeipmi avahi];
 
   configureFlags = [
     "--with-all"
+    "--with-ssl"
+    "--with-wrap"
+    "--with-freeipmi"
+    "--with-avahi"
+    "--with-doc"
     "--without-snmp" # Until we have it ...
     "--without-powerman" # Until we have it ...
     "--without-cgi"
-    "--without-hal" # Deprecated.
   ];
 
   meta = {
