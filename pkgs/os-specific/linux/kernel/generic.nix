@@ -103,7 +103,7 @@ stdenv.mkDerivation {
     if stdenv.system == "i686-linux" then "i386" else
     if stdenv.system == "x86_64-linux" then "x86_64" else
     if stdenv.system == "armv5tel-linux" then "arm" else
-    if stdenv.system == "mips64-linux" then "mips" else
+    if stdenv.system == "mips64el-linux" then "mips" else
     abort "Platform ${stdenv.system} is not supported.";
 
   crossAttrs = let

@@ -120,7 +120,7 @@ let
         is64bit = result.system == "x86_64-linux"
                 || result.system == "x86_64-darwin";
         isMips = result.system == "mips-linux"
-                || result.system == "mips64-linux";
+                || result.system == "mips64el-linux";
         isArm = result.system == "armv5tel-linux"
              || result.system == "armv7l-linux";
 
