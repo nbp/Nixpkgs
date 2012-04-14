@@ -16,7 +16,7 @@ stdenv.mkDerivation (rec {
   buildFlags = "world" +
     (if !stdenv.isArm then "bootstrap world.opt" else "");
   buildInputs = [ncurses];
-  installTargets = "install" + (if !stdenv.isArm then "installopt" else ""); 
+  installTargets = "install" + (if !stdenv.isArm then "installopt" else "");
   patchPhase = ''
     CAT=$(type -tp cat)
     sed -e "s@/bin/cat@$CAT@" -i config/auto-aux/sharpbang
