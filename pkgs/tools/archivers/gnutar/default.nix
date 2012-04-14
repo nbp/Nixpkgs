@@ -37,6 +37,4 @@ stdenv.mkDerivation (rec {
   # cannot be used as a login shell for now.
 // stdenv.lib.optionalAttrs (stdenv.system == "armv7l-linux") {
   FORCE_UNSAFE_CONFIGURE = 1;
-}
-
-)
+})
